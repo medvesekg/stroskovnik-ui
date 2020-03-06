@@ -43,5 +43,18 @@ export default {
         }
       }
     }`
+  },
+
+  lastCost(productName, shopName) {
+    return `
+    {
+      invoice_items(where: {invoice: {shop: {name: {_ilike: "${shopName}"}}}, name: {_ilike: "${productName}"}}, order_by: {invoice: {date: desc_nulls_last}}, limit: 1)
+      {
+        name
+        amount
+        cost
+      }
+    }
+    `
   }
 }

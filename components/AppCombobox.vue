@@ -3,11 +3,9 @@
     ref="combobox"
     v-bind="$attrs"
     v-on="$listeners"
-    @keydown.enter="enterWasPressed = true"
-    @input="onInput"
+    @keydown.enter="enter"
   />
 </template>
-
 
 <script>
 export default {
@@ -17,14 +15,12 @@ export default {
     }
   },
   methods: {
-    onInput(e) {
-      this.$emit('input', e)
-
-      if (this.enterWasPressed) {
-        this.enterWasPressed = false
-
-        this.$emit('enter', { key: 'Enter', type: 'key' })
-      }
+    enter() {
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          this.$emit('enter')
+        })
+      })
     },
     focus() {
       this.$refs.combobox.focus()

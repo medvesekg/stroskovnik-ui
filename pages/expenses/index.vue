@@ -30,6 +30,7 @@
             v-model="stagingItems[index]"
             :key="index"
             :delete-disabled="index === 0"
+            :shop="shop"
             @remove="removeItem(index)"
             @end="addNewStagingItem"
             class="pl-5"

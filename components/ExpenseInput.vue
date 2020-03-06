@@ -18,6 +18,7 @@
               $emit('input', item)
             "
             data-vv-as="Ime artikla"
+            data-lpignore="true"
             label="Ime artikla"
             auto-select-first
           />
@@ -140,6 +141,10 @@ export default {
     autofocus: {
       type: Boolean,
       default: false
+    },
+    shop: {
+      type: String,
+      default: null
     }
   },
 
@@ -219,6 +224,16 @@ export default {
       }
       if (!this.item.subcategory_id) {
         this.item.subcategory_id = product.subcategory_id
+      }
+      if (!this.item.amount && !this.item.cost && this.shop) {
+        API.query(invoiceItemQueries.lastCost(name, this.shop)).then(
+          response => {
+            if (response.invoice_items.length) {
+              this.item.cost = response.invoice_items[0].cost
+              this.item.amount = response.invoice_items[0].amount
+            }
+          }
+        )
       }
     }
   }
