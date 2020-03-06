@@ -1,5 +1,5 @@
 import API from '@/api/api'
-import categoryQueries from '@/api/queries/CATEGORIES'
+import categoryQueries from '@/api/queries/categories'
 
 export const state = () => ({
   all: []
