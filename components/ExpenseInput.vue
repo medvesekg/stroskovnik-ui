@@ -221,9 +221,11 @@ export default {
       if (!product) return
       if (!this.item.category_id) {
         this.item.category_id = product.category_id
+        this.$emit('input', this.item)
       }
       if (!this.item.subcategory_id) {
         this.item.subcategory_id = product.subcategory_id
+        this.$emit('input', this.item)
       }
       if (!this.item.amount && !this.item.cost && this.shop) {
         API.query(invoiceItemQueries.lastCost(name, this.shop)).then(
@@ -231,6 +233,7 @@ export default {
             if (response.invoice_items.length) {
               this.item.cost = response.invoice_items[0].cost
               this.item.amount = response.invoice_items[0].amount
+              this.$emit('input', this.item)
             }
           }
         )

@@ -56,5 +56,57 @@ export default {
       }
     }
     `
+  },
+
+  monthlyRunningTotal() {
+    const from = startOfMonth(new Date()).toISOString()
+    const to = endOfMonth(new Date()).toISOString()
+
+    return `{
+      monthly_running_total (order_by: {date: asc}, where: {date: {_gte: "${from}", _lte:"${to}"}}) {
+        date
+        sum
+      }
+    }`
+  },
+
+  expensesByDay() {
+    const from = startOfMonth(new Date()).toISOString()
+    const to = endOfMonth(new Date()).toISOString()
+
+    return `{
+      expenses_by_day (order_by: {date: asc}, where: {date: {_gte: "${from}", _lte:"${to}"}}) {
+        date
+        sum
+      }
+    }`
+  },
+
+  monthlyCostBreakdown() {
+    const from = startOfMonth(new Date()).toISOString()
+    const to = endOfMonth(new Date()).toISOString()
+    return `{
+        monthly_expenses_breakdown(where: {month: {_gte: "${from}", _lte: "${to}"}}) {
+          category_id
+          month
+          name
+          sum
+        }
+      }
+    `
+  },
+
+  monthlyCostBreakdownByShop() {
+    const from = startOfMonth(new Date()).toISOString()
+    const to = endOfMonth(new Date()).toISOString()
+    return `{
+        monthly_expenses_breakdown_by_shop(where: {month: {_gte: "${from}", _lte: "${to}"}}) {
+          shop_id
+          month
+          name
+          sum
+        }
+      }
+    `
   }
 }

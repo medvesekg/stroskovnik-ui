@@ -94,6 +94,8 @@ export default {
           }
         })
       }
+
+      config.externals = {moment: 'moment'}
     }
   }
 }

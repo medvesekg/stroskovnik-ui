@@ -18,7 +18,6 @@
                     ref="shopInput"
                     v-model="shop"
                     @keydown.enter="addShop"
-                    autofocus
                   />
                 </v-col>
               </v-row>
@@ -32,7 +31,7 @@
             :delete-disabled="index === 0"
             :shop="shop"
             @remove="removeItem(index)"
-            @end="addNewStagingItem"
+            @end="onEnd(index)"
             class="pl-5"
           />
 
@@ -91,7 +90,12 @@ import invoiceItemsQueries from '@/api/queries/invoice_items'
 import invoiceQueries from '@/api/queries/invoices'
 
 export default {
-  components: { ExpenseInput, DateInput, RecentExpense, ShopInput },
+  components: {
+    ExpenseInput,
+    DateInput,
+    RecentExpense,
+    ShopInput
+  },
 
   data() {
     return {
@@ -239,6 +243,13 @@ export default {
       this.$nextTick(() => {
         this.$refs.stagingItems[this.$refs.stagingItems.length - 1].focus()
       })
+    },
+    onEnd(i) {
+      if (i === this.stagingItems.length - 1) {
+        this.addNewStagingItem()
+      } else {
+        this.$refs.stagingItems[i + 1].focus()
+      }
     },
     addShop() {
       this.$refs.shopInput.blur()

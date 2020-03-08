@@ -56,8 +56,13 @@ export default {
         },
         {
           icon: 'note_add',
-          title: 'Stroški',
+          title: 'Dodaj strošek',
           to: '/expenses'
+        },
+        {
+          icon: 'note',
+          title: 'Stroški',
+          to: '/invoice_items'
         }
       ],
       miniVariant: false,
