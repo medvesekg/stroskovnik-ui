@@ -2,7 +2,7 @@ export default {
   getAll() {
     return `{
       categories {
-        subcategories {
+        category_group {
           id
           name
         }

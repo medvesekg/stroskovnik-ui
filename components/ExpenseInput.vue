@@ -32,49 +32,19 @@
             :error-messages="errors.collect(inputName('category'))"
             :name="inputName('category')"
             :disabled="mode === 'view'"
-            @keydown.enter="changeFocus('categoryInput', 'subcategoryInput')"
+            @keydown.enter="changeFocus('categoryInput', 'costInput')"
             @input="$emit('input', item)"
-            label="Kategorija"
+            item-text="name"
+            item-value="id"
             data-vv-as="Kategorija"
-            item-text="name"
-            item-value="id"
-          >
-          </v-autocomplete>
-        </v-flex>
-        <v-flex xl2 md2 xs6>
-          <v-autocomplete
-            ref="subcategoryInput"
-            v-model="item.subcategory_id"
-            v-validate="'required'"
-            :items="selectedCategorySubcategories"
-            :error-messages="errors.collect(inputName('subcategory'))"
-            :name="inputName('subcategory')"
-            :disabled="mode === 'view'"
-            @keydown.enter="changeFocus('subcategoryInput', 'quantityInput')"
-            @input="$emit('input', item)"
-            item-text="name"
-            item-value="id"
-            data-vv-as="Podkategorija"
-            label="Podkategorija"
+            label="Kategorija"
             no-data="Izberite kategorijo"
+            data-lpignore="true"
           >
           </v-autocomplete>
         </v-flex>
+
         <v-flex xl1 md1 xs6>
-          <v-text-field
-            ref="quantityInput"
-            v-model="item.amount"
-            v-validate="'required'"
-            :error-messages="errors.collect(inputName('amount'))"
-            :name="inputName('amount')"
-            :disabled="mode === 'view'"
-            @keydown.enter="focusRef('costInput')"
-            @input="$emit('input', item)"
-            data-vv-as="Količina"
-            label="Količina"
-          />
-        </v-flex>
-        <v-flex xl2 md2 xs6>
           <v-text-field
             ref="costInput"
             v-model="item.cost"
@@ -82,11 +52,49 @@
             :error-messages="errors.collect(inputName('cost'))"
             :name="inputName('cost')"
             :disabled="mode === 'view'"
+            @keydown.enter="focusRef('discountInput')"
+            @input="$emit('input', item)"
+            label="Cena"
+            data-vv-as="Cena"
+            prefix="€"
+          />
+        </v-flex>
+        <v-flex xl1 md1 xs6>
+          <v-text-field
+            ref="discountInput"
+            v-model="item.discount"
+            v-validate="'required'"
+            :error-messages="errors.collect(inputName('discount'))"
+            :name="inputName('cost')"
+            :disabled="mode === 'view'"
+            @keydown.enter="focusRef('quantityInput')"
+            @input="$emit('input', item)"
+            label="Popust"
+            data-vv-as="Popust"
+            prefix="€"
+          />
+        </v-flex>
+        <v-flex xl1 md1 xs6>
+          <v-text-field
+            ref="quantityInput"
+            v-model="item.quantity"
+            v-validate="'required'"
+            :error-messages="errors.collect(inputName('quantity'))"
+            :name="inputName('quantity')"
+            :disabled="mode === 'view'"
             @keydown.enter="$emit('end')"
             @input="$emit('input', item)"
-            cast-to="number"
+            data-vv-as="Količina"
+            label="Količina"
+          />
+        </v-flex>
+
+        <v-flex xl1 md1 xs6>
+          <v-text-field
+            v-model="total"
+            :name="inputName('cost_total')"
+            :disabled="true"
             label="Cena skupaj"
-            data-vv-as="Cena skupaj"
             prefix="€"
           />
         </v-flex>
@@ -164,13 +172,22 @@ export default {
     categories() {
       return this.$store.state.categories.all
     },
-    selectedCategory() {
-      return this.categories.find(
-        category => category.id === this.item.category_id
-      )
+    total() {
+      const quantity = this.toNumber(this.item.quantity)
+      const cost = this.toNumber(this.item.cost)
+      const discount = this.toNumber(this.item.discount)
+      if (isNaN(quantity) || isNaN(cost) || isNaN(discount)) {
+        return 0
+      }
+      return (quantity * (cost - discount)).toFixed(2)
     },
-    selectedCategorySubcategories() {
-      return this.selectedCategory ? this.selectedCategory.subcategories : []
+    itemToEmit() {
+      return {
+        category_id: this.item.category_id,
+        name: this.item.name,
+        cost: this.item.cost - this.item.discount,
+        quantity: this.item.quantity
+      }
     }
   },
 
@@ -227,17 +244,22 @@ export default {
         this.item.subcategory_id = product.subcategory_id
         this.$emit('input', this.item)
       }
-      if (!this.item.amount && !this.item.cost && this.shop) {
+      if (!this.item.cost && this.shop) {
         API.query(invoiceItemQueries.lastCost(name, this.shop)).then(
           response => {
             if (response.invoice_items.length) {
               this.item.cost = response.invoice_items[0].cost
-              this.item.amount = response.invoice_items[0].amount
               this.$emit('input', this.item)
             }
           }
         )
       }
+    },
+    toNumber(value) {
+      if (typeof value === 'string') {
+        value = value.replace(',', '.')
+      }
+      return Number(value)
     }
   }
 }

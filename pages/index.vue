@@ -131,7 +131,7 @@ export default {
 
   created() {
     API.query(invoiceItemsQueries.thisMonthSum()).then(r => {
-      this.total = r.invoice_items_aggregate.aggregate.sum.cost || 0
+      this.total = r.monthly_running_total[0].sum || 0
     })
     API.query(invoiceItemsQueries.monthlyCostBreakdown()).then(r => {
       this.chart2 = this.createPieChart(r.monthly_expenses_breakdown)

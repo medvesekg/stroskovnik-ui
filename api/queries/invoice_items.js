@@ -7,34 +7,27 @@ export default {
       invoice_items(where: {name: {_ilike: "%${q}%"}}, limit: 5) {
         name
         category_id
-        subcategory_id
     }
   }`
   },
   thisMonthSum() {
-    const from = startOfMonth(new Date()).toISOString()
-    const to = endOfMonth(new Date()).toISOString()
-
-    return `{  
-      invoice_items_aggregate(where: {invoice: {date: {_gte: "${from}", _lte: "${to}"}}}) {
-        aggregate {
-          sum {
-            cost
-          }
-        }
+    return `
+    {
+      monthly_running_total(order_by: {date: desc}, limit: 1) {
+        sum
       }
-    }`
+    }
+    `
   },
   recent(limit) {
     return `{
       invoice_items(order_by: {invoice: {date: desc, id: desc}, id: asc}, limit: ${limit}) {
         id
-        amount
+        quantity
         category_id
         cost
         invoice_id
         name
-        subcategory_id
         invoice {
           date
           shop {
@@ -51,7 +44,7 @@ export default {
       invoice_items(where: {invoice: {shop: {name: {_ilike: "${shopName}"}}}, name: {_ilike: "${productName}"}}, order_by: {invoice: {date: desc_nulls_last}}, limit: 1)
       {
         name
-        amount
+        quantity
         cost
       }
     }

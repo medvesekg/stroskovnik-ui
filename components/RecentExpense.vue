@@ -2,14 +2,14 @@
   <v-form>
     <v-container>
       <v-layout row wrap>
-        <v-flex xl1 lg2 xs12>
+        <v-flex xl1 lg1 xs12>
           <date-input
             v-model="item.invoice.date"
             disabled
             label="Datum računa"
           />
         </v-flex>
-        <v-flex xl1 lg2 xs12>
+        <v-flex xl1 lg1 xs12>
           <date-input
             v-model="item.invoice.shop.name"
             name="shopInput"
@@ -17,7 +17,7 @@
             label="Trgovina"
           />
         </v-flex>
-        <v-flex xl3 lg2 xs12>
+        <v-flex xl4 lg3 xs12>
           <v-text-field
             ref="nameInput"
             v-model="item.name"
@@ -31,8 +31,8 @@
           <v-autocomplete
             v-model="item.category_id"
             :items="categories"
-            :disabled="!editing"
             @keydown.native.enter="focusNextInput"
+            :disabled="!editing"
             item-text="name"
             item-value="id"
             placeholder="Kategorija"
@@ -40,33 +40,29 @@
           >
           </v-autocomplete>
         </v-flex>
-        <v-flex xl2 lg2 xs12>
-          <v-autocomplete
-            v-model="item.subcategory_id"
-            :items="selectedCategorySubcategories"
+
+        <v-flex xl1 lg1 xs12>
+          <v-text-field
+            v-model="item.cost"
             :disabled="!editing"
-            @keydown.native.enter="focusNextInput"
-            label="Podkategorija"
-            item-text="name"
-            item-value="id"
-            placeholder="Podkategorija"
-            no-data="Izberite kategorijo"
-          >
-          </v-autocomplete>
+            @keydown.native.enter="addItem"
+            label="Cena"
+            prefix="€"
+          />
         </v-flex>
         <v-flex xl1 lg1 xs12>
           <v-text-field
-            v-model="item.amount"
+            v-model="item.quantity"
             :disabled="!editing"
             @keydown.enter="focusNextInput"
             label="Količina"
           />
         </v-flex>
-        <v-flex xl1 lg2 xs12>
+        <v-flex xl1 lg1 xs12>
           <v-text-field
-            v-model="item.cost"
-            :disabled="!editing"
+            v-model="total"
             @keydown.native.enter="addItem"
+            disabled
             label="Cena skupaj"
             prefix="€"
           />
@@ -123,13 +119,8 @@ export default {
     categories() {
       return this.$store.state.categories.all
     },
-    selectedCategory() {
-      return this.categories.find(
-        category => category.id === this.item.category_id
-      )
-    },
-    selectedCategorySubcategories() {
-      return this.selectedCategory ? this.selectedCategory.subcategories : []
+    total() {
+      return this.toNumber(this.item.cost) * this.toNumber(this.item.quantity)
     }
   },
 
@@ -180,6 +171,12 @@ export default {
     cancel() {
       this.editing = false
       this.item = Object.assign({}, this.dataItem)
+    },
+    toNumber(value) {
+      if (typeof value === 'string') {
+        value = value.replace(',', '.')
+      }
+      return Number(value)
     }
   }
 }

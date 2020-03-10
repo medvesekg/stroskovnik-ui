@@ -111,7 +111,10 @@ export default {
   computed: {
     total() {
       return this.stagingItems.reduce(
-        (sum, item) => sum + this.toNumber(item.cost),
+        (sum, item) =>
+          sum +
+          (this.toNumber(item.cost) - this.toNumber(item.discount)) *
+            this.toNumber(item.quantity),
         0
       )
     }
@@ -164,12 +167,13 @@ export default {
     commitItems(invoiceId) {
       return new Promise((resolve, reject) => {
         const itemsToAdd = this.stagingItems.map(item => {
+          const cost = this.toNumber(item.cost) - this.toNumber(item.discount)
+
           return `{
-            amount: ${item.amount}, 
+            quantity: ${item.quantity}, 
             name: "${item.name}", 
             category_id: ${item.category_id}, 
-            cost: ${parseFloat(item.cost.replace(',', '.'))}, 
-            subcategory_id: ${item.subcategory_id}, 
+            cost: ${cost},
             invoice_id: ${invoiceId},
           }`
         })
@@ -200,10 +204,10 @@ export default {
     defaultNewItem() {
       return {
         name: '',
-        cost: null,
         category_id: null,
-        subcategory_id: null,
-        amount: null
+        cost: null,
+        quantity: null,
+        discount: null
       }
     },
 
@@ -224,11 +228,10 @@ export default {
         query: `mutation {
           update_invoice_items(where: {id: {_eq: ${item.id}}},
              _set: {
-               amount: ${item.amount}, 
+               quantity: ${item.quantity}, 
                category_id: ${item.category_id}, 
                cost: ${item.cost}, 
                name: "${item.name}", 
-               subcategory_id: ${item.subcategory_id}
                }) {
             affected_rows
           }
