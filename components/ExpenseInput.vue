@@ -57,21 +57,22 @@
             label="Cena"
             data-vv-as="Cena"
             prefix="€"
+            data-lpignore="true"
           />
         </v-flex>
         <v-flex xl1 md1 xs6>
           <v-text-field
             ref="discountInput"
             v-model="item.discount"
-            v-validate="'required'"
             :error-messages="errors.collect(inputName('discount'))"
-            :name="inputName('cost')"
+            :name="inputName('discount')"
             :disabled="mode === 'view'"
             @keydown.enter="focusRef('quantityInput')"
             @input="$emit('input', item)"
             label="Popust"
             data-vv-as="Popust"
             prefix="€"
+            data-lpignore="true"
           />
         </v-flex>
         <v-flex xl1 md1 xs6>
@@ -86,6 +87,7 @@
             @input="$emit('input', item)"
             data-vv-as="Količina"
             label="Količina"
+            data-lpignore="true"
           />
         </v-flex>
 
@@ -201,6 +203,7 @@ export default {
       }, 200)
     },
     value: {
+      deep: true,
       handler: function(item) {
         this.item = Object.assign({}, item)
       }

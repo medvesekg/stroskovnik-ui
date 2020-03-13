@@ -82,7 +82,7 @@
           </v-row>
         </v-container>
         <v-card-actions>
-          <v-btn to="/expenses" color="secondary" link>Dodaj strošek</v-btn>
+          <v-btn to="/add_expenses" color="secondary" link>Dodaj strošek</v-btn>
           <!-- <v-btn to="/incomes" color="primary" link>Dodaj dohodek</v-btn> -->
         </v-card-actions>
       </v-card>

@@ -57,12 +57,17 @@ export default {
         {
           icon: 'note_add',
           title: 'Dodaj strošek',
-          to: '/expenses'
+          to: '/add_expenses'
+        },
+        {
+          icon: 'attach_money',
+          title: 'Stroški',
+          to: '/invoice_items'
         },
         {
           icon: 'note',
-          title: 'Stroški',
-          to: '/invoice_items'
+          title: 'Računi',
+          to: '/invoices'
         }
       ],
       miniVariant: false,

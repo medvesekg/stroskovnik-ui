@@ -1,5 +1,5 @@
 <template>
-  <v-combobox
+  <app-combobox
     ref="combobox"
     :value="value"
     v-validate="'required'"
@@ -8,7 +8,7 @@
     @input="emitInput"
     :autofocus="autofocus"
     :return-object="false"
-    @keydown.enter="enterWasPressed = true"
+    @enter="$emit('enter')"
     name="shop"
     item-text="name"
     item-value="name"
@@ -19,8 +19,12 @@
 </template>
 
 <script>
+import AppCombobox from '@/components/AppCombobox'
+
 export default {
   inject: ['$validator'],
+
+  components: { AppCombobox },
 
   props: {
     value: {

@@ -21,7 +21,7 @@ export default {
   },
   recent(limit) {
     return `{
-      invoice_items(order_by: {invoice: {date: desc, id: desc}, id: asc}, limit: ${limit}) {
+      invoice_items(order_by: {created_at: desc, id: asc}, limit: ${limit}) {
         id
         quantity
         category_id

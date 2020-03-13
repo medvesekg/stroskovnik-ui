@@ -9,7 +9,7 @@
             label="Datum računa"
           />
         </v-flex>
-        <v-flex xl1 lg1 xs12>
+        <v-flex xl2 lg2 xs12>
           <date-input
             v-model="item.invoice.shop.name"
             name="shopInput"
@@ -17,7 +17,7 @@
             label="Trgovina"
           />
         </v-flex>
-        <v-flex xl4 lg3 xs12>
+        <v-flex xl3 lg3 xs12>
           <v-text-field
             ref="nameInput"
             v-model="item.name"

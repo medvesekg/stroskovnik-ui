@@ -14,11 +14,7 @@
                 </v-col>
 
                 <v-col xs="6" md="3">
-                  <shop-input
-                    ref="shopInput"
-                    v-model="shop"
-                    @keydown.enter="addShop"
-                  />
+                  <shop-input ref="shopInput" v-model="shop" @enter="addShop" />
                 </v-col>
               </v-row>
             </v-container>
@@ -27,7 +23,7 @@
             ref="stagingItems"
             v-for="(item, index) in stagingItems"
             v-model="stagingItems[index]"
-            :key="index"
+            :key="item.uuid"
             :delete-disabled="index === 0"
             :shop="shop"
             @remove="removeItem(index)"
@@ -43,7 +39,8 @@
                     <v-icon>add</v-icon>
                   </v-btn>
                   <div class="ml-auto">
-                    Skupaj <span class="headline ml-2">{{ total }} €</span>
+                    Skupaj
+                    <span class="headline ml-2">{{ total.toFixed(2) }} €</span>
                   </div>
                 </v-flex>
               </v-layout>
@@ -88,6 +85,7 @@ import ShopInput from '@/components/ShopInput.vue'
 import API from '@/api/api'
 import invoiceItemsQueries from '@/api/queries/invoice_items'
 import invoiceQueries from '@/api/queries/invoices'
+import { v4 as uuid } from 'uuid'
 
 export default {
   components: {
@@ -168,9 +166,9 @@ export default {
       return new Promise((resolve, reject) => {
         const itemsToAdd = this.stagingItems.map(item => {
           const cost = this.toNumber(item.cost) - this.toNumber(item.discount)
-
+          const quantity = this.toNumber(item.quantity)
           return `{
-            quantity: ${item.quantity}, 
+            quantity: ${quantity}, 
             name: "${item.name}", 
             category_id: ${item.category_id}, 
             cost: ${cost},
@@ -203,6 +201,7 @@ export default {
 
     defaultNewItem() {
       return {
+        uuid: uuid(),
         name: '',
         category_id: null,
         cost: null,

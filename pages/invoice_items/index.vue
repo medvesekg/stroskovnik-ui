@@ -9,8 +9,9 @@
     <template #item.category="{item}">
       {{ item.category.name }}
     </template>
-    <template #item.subcategory="{item}">
-      {{ item.subcategory.name }}
+    <template #item.cost="{item}"> {{ item.cost }} € </template>
+    <template #item.cost_total="{item}">
+      {{ item.cost * item.quantity }} €
     </template>
   </v-data-table>
 </template>
@@ -39,16 +40,16 @@ export default {
           value: 'category'
         },
         {
-          text: 'Podkategorija',
-          value: 'subcategory'
+          text: 'Količina',
+          value: 'quantity'
         },
         {
-          text: 'Količina',
-          value: 'amount'
+          text: 'Cena',
+          value: 'cost'
         },
         {
           text: 'Cena skupaj',
-          value: 'cost'
+          value: 'cost_total'
         }
       ],
       items: []
@@ -57,17 +58,18 @@ export default {
   created() {
     API.query(
       `{
-      invoice_items(order_by: {invoice: {date: desc, id: desc}, id: asc}, limit: 20) {
+      invoice_items(order_by: {invoice: {date: desc, id: desc}, id: asc}, limit: 1000) {
         id
-        amount
-        category {
-          name
-        }
+        quantity
         cost
-        invoice_id
         name
-        subcategory {
+        category {
+          id
           name
+          category_group {
+            id
+            name
+          }
         }
         invoice {
           date
