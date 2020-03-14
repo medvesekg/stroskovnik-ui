@@ -101,5 +101,59 @@ export default {
         }
       }
     `
+  },
+
+  _createGqlInsertObject(item) {
+    return `{
+      name: "${item.name || ''}",
+      category_id: ${item.category_id},
+      cost: ${item.cost},
+      invoice_id: ${item.invoice_id},
+      quantity: ${item.quantity}
+    }`
+  },
+
+  create(item) {
+    const gql = this._createGqlInsertObject(item)
+
+    return `mutation {
+      insert_invoice_items(objects: [${gql}]) {
+        affected_rows
+      }
+    }`
+  },
+
+  createMany(items) {
+    const objects = items.map(item => {
+      return this._createGqlInsertObject(item)
+    })
+
+    return `mutation {
+        insert_invoice_items(objects: [${objects.join(',')}]) {
+          affected_rows
+        }
+      }`
+  },
+
+  delete(id) {
+    return `mutation {
+      delete_invoice_items(where: {id: {_eq: ${id}}}) {
+        affected_rows
+      }
+    }`
+  },
+
+  update(id, item) {
+    return `mutation {
+      update_invoice_items(where: {id: {_eq: ${id}}},
+         _set: {
+           quantity: ${item.quantity}, 
+           category_id: ${item.category_id}, 
+           cost: ${item.cost}, 
+           name: "${item.name}", 
+           }) {
+        affected_rows
+      }
+    }`
   }
 }

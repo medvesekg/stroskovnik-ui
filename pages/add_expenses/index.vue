@@ -12,9 +12,14 @@
                 <v-col xs="6" md="3">
                   <date-input v-model="date" label="Datum računa" />
                 </v-col>
-
                 <v-col xs="6" md="3">
-                  <shop-input ref="shopInput" v-model="shop" @enter="addShop" />
+                  <shop-input
+                    ref="shopInput"
+                    v-model="shop"
+                    @enter="addShop"
+                    v-validate="'required'"
+                    :error-messages="errors.collect('shop')"
+                  />
                 </v-col>
               </v-row>
             </v-container>
@@ -88,6 +93,10 @@ import invoiceQueries from '@/api/queries/invoices'
 import { v4 as uuid } from 'uuid'
 
 export default {
+  $_veeValidate: {
+    validator: 'new'
+  },
+
   components: {
     ExpenseInput,
     DateInput,
@@ -99,8 +108,6 @@ export default {
     return {
       stagingItems: [this.defaultNewItem()],
       recentExpenses: [],
-      graphQLEndpoint:
-        'https://stroskovnik-graphql.herokuapp.com/v1alpha1/graphql',
       date: this.today(),
       shop: null
     }
@@ -163,36 +170,17 @@ export default {
     },
 
     commitItems(invoiceId) {
-      return new Promise((resolve, reject) => {
-        const itemsToAdd = this.stagingItems.map(item => {
-          const cost = this.toNumber(item.cost) - this.toNumber(item.discount)
-          const quantity = this.toNumber(item.quantity)
-          return `{
-            quantity: ${quantity}, 
-            name: "${item.name}", 
-            category_id: ${item.category_id}, 
-            cost: ${cost},
-            invoice_id: ${invoiceId},
-          }`
-        })
-
-        const gql = {
-          query: `mutation {
-            insert_invoice_items(objects: [${itemsToAdd.join(',')}]) {
-              affected_rows
-            }
-          }`
+      const itemsToInsert = this.stagingItems.map(item => {
+        return {
+          quantity: this.toNumber(item.quantity),
+          name: item.name,
+          category_id: item.category_id,
+          cost: this.toNumber(item.cost),
+          invoice_id: invoiceId
         }
-
-        this.$axios
-          .post(this.graphQLEndpoint, gql)
-          .then(response => {
-            resolve(response)
-          })
-          .catch(e => {
-            reject(e)
-          })
       })
+
+      return API.query(invoiceItemsQueries.createMany(itemsToInsert))
     },
 
     today() {
@@ -210,35 +198,14 @@ export default {
       }
     },
 
-    removeRecentItem(id) {
-      const gql = {
-        query: `mutation {
-          delete_invoice_items(where: {id: {_eq: ${id}}}) {
-            affected_rows
-          }
-        }`
-      }
-      this.$axios.post(this.graphQLEndpoint, gql).then(() => {
-        this.fetchRecentExpenses()
-      })
+    async removeRecentItem(id) {
+      await API.query(invoiceItemsQueries.delete(id))
+      const index = this.recentExpenses.findIndex(item => item.id === id)
+      this.recentExpenses.splice(index, 1)
     },
-    updateRecentItem(item) {
-      const gql = {
-        query: `mutation {
-          update_invoice_items(where: {id: {_eq: ${item.id}}},
-             _set: {
-               quantity: ${item.quantity}, 
-               category_id: ${item.category_id}, 
-               cost: ${item.cost}, 
-               name: "${item.name}", 
-               }) {
-            affected_rows
-          }
-        }`
-      }
-      this.$axios.post(this.graphQLEndpoint, gql).then(() => {
-        this.fetchRecentExpenses()
-      })
+    async updateRecentItem(item) {
+      await API.query(invoiceItemsQueries.update(item.id, item))
+      this.fetchRecentExpenses()
     },
     addNewStagingItem() {
       this.stagingItems.push(this.defaultNewItem())
@@ -263,9 +230,6 @@ export default {
       }
       return Number(value)
     }
-  },
-  $_veeValidate: {
-    validator: 'new'
   }
 }
 </script>

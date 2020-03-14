@@ -18,7 +18,9 @@ export default {
     enter() {
       this.$nextTick(() => {
         this.$nextTick(() => {
-          this.$emit('enter')
+          this.$nextTick(() => {
+            this.$emit('enter')
+          })
         })
       })
     },
