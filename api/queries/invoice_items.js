@@ -2,9 +2,9 @@ import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
 
 export default {
-  search(q) {
+  search(name, shop) {
     return `{
-      invoice_items(where: {name: {_ilike: "%${q}%"}}, limit: 5) {
+      invoice_items(where: {name: {_ilike: "%${name}%",  } _and: {invoice: { shop: { name: { _eq: "${shop}" }} }}}, limit: 5) {
         name
         category_id
     }

@@ -197,7 +197,7 @@ export default {
     search: {
       handler: debounce(function(q) {
         if (!q) return
-        API.query(invoiceItemQueries.search(q)).then(response => {
+        API.query(invoiceItemQueries.search(q, this.shop)).then(response => {
           this.products = response.invoice_items
         })
       }, 200)
