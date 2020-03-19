@@ -94,6 +94,7 @@
 import API from '@/api/api'
 import invoiceItemsQueries from '@/api/queries/invoice_items'
 import AppChart from '@/components/AppChart'
+import palette from 'google-palette'
 
 export default {
   components: { AppChart },
@@ -183,7 +184,7 @@ export default {
           datasets: [
             {
               data: data.map(data => data.sum),
-              backgroundColor: Object.values(this.$vuetify.theme.themes.dark)
+              backgroundColor: palette('mpn65', 65).map(color => '#' + color)
             }
           ],
           labels: data.map(data => data.name)

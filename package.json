@@ -21,6 +21,7 @@
     "cross-env": "^5.2.1",
     "date-fns": "^2.10.0",
     "firebase": "^7.0.0",
+    "google-palette": "^1.1.0",
     "nuxt": "^2.11.0",
     "uuid": "^7.0.2",
     "vee-validate": "^2.2.15",
