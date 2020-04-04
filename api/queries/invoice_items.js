@@ -1,5 +1,6 @@
 import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
+import format from 'date-fns/format'
 
 export default {
   search(name, shop) {
@@ -10,15 +11,7 @@ export default {
     }
   }`
   },
-  thisMonthSum() {
-    return `
-    {
-      monthly_running_total(order_by: {date: desc}, limit: 1) {
-        sum
-      }
-    }
-    `
-  },
+
   recent(limit) {
     return `{
       invoice_items(order_by: {created_at: desc, id: asc}, limit: ${limit}) {
@@ -38,6 +31,41 @@ export default {
     }`
   },
 
+  mostExpensive(from, to) {
+    return `
+    {
+      invoice_items(where: {invoice: {date: {_gte: "${from}", _lte: "${to}"}}}, limit: 5, order_by: {cost: desc}) {
+        id
+        name
+        quantity
+        cost
+        invoice {
+          date
+          shop {
+            name
+          }
+        }
+        category {
+          name
+        }
+      }
+    }
+    `
+  },
+  mostPopular(month, orderBy) {
+    const from = format(startOfMonth(new Date(month)), 'MM-dd-yyyy')
+    const to = format(endOfMonth(new Date(month)), 'MM-dd-yyyy')
+
+    return `{
+      item_popularity(where: {month: {_gte: "${from}", _lte: "${to}"}}, order_by: {${orderBy}: desc}, limit: 5) {
+        item_name
+        times_bought
+        total_quantity
+        month
+      }
+    }`
+  },
+
   lastCost(productName, shopName) {
     return `
     {
@@ -48,58 +76,6 @@ export default {
         cost
       }
     }
-    `
-  },
-
-  monthlyRunningTotal() {
-    const from = startOfMonth(new Date()).toISOString()
-    const to = endOfMonth(new Date()).toISOString()
-
-    return `{
-      monthly_running_total (order_by: {date: asc}, where: {date: {_gte: "${from}", _lte:"${to}"}}) {
-        date
-        sum
-      }
-    }`
-  },
-
-  expensesByDay() {
-    const from = startOfMonth(new Date()).toISOString()
-    const to = endOfMonth(new Date()).toISOString()
-
-    return `{
-      expenses_by_day (order_by: {date: asc}, where: {date: {_gte: "${from}", _lte:"${to}"}}) {
-        date
-        sum
-      }
-    }`
-  },
-
-  monthlyCostBreakdown() {
-    const from = startOfMonth(new Date()).toISOString()
-    const to = endOfMonth(new Date()).toISOString()
-    return `{
-        monthly_expenses_breakdown(where: {month: {_gte: "${from}", _lte: "${to}"}}) {
-          category_id
-          month
-          name
-          sum
-        }
-      }
-    `
-  },
-
-  monthlyCostBreakdownByShop() {
-    const from = startOfMonth(new Date()).toISOString()
-    const to = endOfMonth(new Date()).toISOString()
-    return `{
-        monthly_expenses_breakdown_by_shop(where: {month: {_gte: "${from}", _lte: "${to}"}}) {
-          shop_id
-          month
-          name
-          sum
-        }
-      }
     `
   },
 

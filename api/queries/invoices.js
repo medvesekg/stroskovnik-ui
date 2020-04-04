@@ -8,5 +8,19 @@ export default {
         }
       }
     }`
+  },
+  mostExpensive(from, to) {
+    return `{
+      invoice_sums(where: {invoice: {date: {_gte: "${from}", _lte: "${to}"}}}, limit: 5, order_by: {sum: desc}) {
+        invoice_id
+        sum
+        invoice {
+          date
+          shop {
+            name
+          }
+        }
+      }
+    }`
   }
 }
