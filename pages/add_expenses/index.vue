@@ -106,7 +106,7 @@ export default {
 
   data() {
     return {
-      stagingItems: [this.defaultNewItem()],
+      stagingItems: [this.defaultNewItem(), this.defaultNewItem()],
       recentExpenses: [],
       date: this.today(),
       shop: null
@@ -125,11 +125,59 @@ export default {
     }
   },
 
+  watch: {
+    stagingItems: {
+      deep: true,
+      handler: function(stagingItems) {
+        if (process.browser) {
+          localStorage.setItem(
+            'add_expenses',
+            JSON.stringify({
+              stagingItems: stagingItems,
+              shop: this.shop
+            })
+          )
+        }
+      }
+    },
+    shop: {
+      handler: function(shop) {
+        if (process.browser) {
+          localStorage.setItem(
+            'add_expenses',
+            JSON.stringify({
+              stagingItems: this.stagingItems,
+              shop: shop
+            })
+          )
+        }
+      }
+    }
+  },
+
   created() {
+    // this.initialize()
     this.fetchRecentExpenses()
   },
 
   methods: {
+    initialize() {
+      let saved = null
+      if (process.browser) {
+        saved = localStorage.getItem('add_expenses')
+      }
+
+      if (saved) {
+        try {
+          saved = JSON.parse(saved)
+          this.shop = saved.shop
+          this.stagingItems = saved.stagingItems || [this.defaultNewItem()]
+        } catch {
+          this.reset()
+        }
+      }
+    },
+
     fetchRecentExpenses() {
       return API.query(invoiceItemsQueries.recent(10)).then(response => {
         this.recentExpenses = response.invoice_items
@@ -158,7 +206,7 @@ export default {
 
         this.fetchRecentExpenses()
 
-        this.stagingItems = [this.defaultNewItem()]
+        this.reset()
 
         this.$validator.reset()
       }
@@ -229,6 +277,11 @@ export default {
         value = value.replace(',', '.')
       }
       return Number(value)
+    },
+    reset() {
+      this.stagingItems = [this.defaultNewItem()]
+      this.shop = null
+      this.date = this.today()
     }
   }
 }

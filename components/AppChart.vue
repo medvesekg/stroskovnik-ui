@@ -43,10 +43,20 @@ export default {
           if (this.chart) {
             this.chart.destroy()
           }
-          const ctx = this.$refs.chart.getContext('2d')
-          this.chart = new Chart(ctx, options)
+          this.createChart()
         }
       }
+    }
+  },
+
+  mounted() {
+    this.createChart()
+  },
+
+  methods: {
+    createChart() {
+      const ctx = this.$refs.chart.getContext('2d')
+      this.chart = new Chart(ctx, this.localOptions)
     }
   }
 }

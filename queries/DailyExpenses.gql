@@ -1,0 +1,6 @@
+query DailyExpenses($from: date, $to: date) {
+  expenses_by_day(where: {date: {_gte: $from, _lte: $to}}, order_by: {date: asc}) {
+    date
+    sum
+  }
+}

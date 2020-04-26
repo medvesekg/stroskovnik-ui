@@ -4,49 +4,27 @@
       <v-card>
         <v-container>
           <v-row>
-            <v-card-title>Dobrodošli v stroškovniku </v-card-title>
+            <v-col class="d-flex align-center">
+              <span>
+                Dobrodošli v stroškovniku
+              </span>
+            </v-col>
+            <v-col>
+              <month-input v-model="month" class="mr-10" label="Mesec" />
+            </v-col>
             <v-spacer />
-            <v-btn to="/add_expenses" color="secondary" link
-              >Dodaj strošek</v-btn
-            >
-            <!-- <v-btn to="/incomes" color="primary" link>Dodaj dohodek</v-btn> -->
+            <v-col class="d-flex align-center justify-end">
+              <v-btn to="/add_expenses" color="secondary" link
+                >Dodaj strošek</v-btn
+              >
+              <!-- <v-btn to="/incomes" color="primary" link>Dodaj dohodek</v-btn> -->
+            </v-col>
           </v-row>
           <v-row>
             <v-col>
+              <expenses-chart :from="from" :to="to" />
               <v-card>
-                <v-app-bar color="accent">
-                  Stroški za mesec
-                  <v-spacer />
-                  <month-input v-model="month" class="mr-10" label="Mesec" />
-
-                  <v-switch
-                    v-model="perDay"
-                    :label="perDay ? 'Dnevni stroški' : 'Tekoča vsota'"
-                  ></v-switch>
-                </v-app-bar>
                 <v-container>
-                  <v-row>
-                    <v-col sm="10">
-                      <app-chart :options="chart1" :width="3" :height="1" />
-                    </v-col>
-                    <v-col sm="2">
-                      <v-card>
-                        <v-card-title>Skupaj</v-card-title>
-                        <v-card-text class="headline">
-                          <v-progress-circular
-                            v-if="total === null"
-                            indeterminate
-                          />
-                          <span>
-                            <span class="error--text text--lighten-1">{{
-                              total
-                            }}</span>
-                            <span class="float-right">€</span>
-                          </span>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
                   <v-row>
                     <v-col sm="6">
                       <v-card>
@@ -175,7 +153,7 @@
                             v-model="mostPopularShopsType"
                             :label="
                               mostPopularShopsType
-                                ? 'Kupljeni artikli'
+                                ? 'Št. postavk'
                                 : 'Št.obiskov'
                             "
                           ></v-switch>
@@ -185,7 +163,7 @@
                             <tr>
                               <th>Trgovina</th>
                               <th>Št. obiskov</th>
-                              <th>Kupljenih artiklov</th>
+                              <th>Št. postavk</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -219,16 +197,23 @@ import invoiceQueries from '@/api/queries/invoices'
 import shopQueries from '@/api/queries/shops'
 import AppChart from '@/components/AppChart'
 import MonthInput from '@/components/MonthInput'
+import ExpensesChart from '@/components/widgets/ExpensesChart'
 import palette from 'google-palette'
 import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
 import format from 'date-fns/format'
 
 export default {
-  components: { AppChart, MonthInput },
+  name: 'PageDashboard',
+
+  components: {
+    AppChart,
+    MonthInput,
+    ExpensesChart
+  },
+
   data() {
     return {
-      total: null,
       chart1: {},
       chart2: {},
       chart3: {},
@@ -240,6 +225,15 @@ export default {
       mostExpensiveInvoices: [],
       mostPopularShopsType: false,
       mostPopularShops: []
+    }
+  },
+
+  computed: {
+    from() {
+      return format(startOfMonth(this.month), 'MM-dd-yyyy')
+    },
+    to() {
+      return format(endOfMonth(this.month), 'MM-dd-yyyy')
     }
   },
 
@@ -266,7 +260,6 @@ export default {
     month: {
       immediate: true,
       handler: function() {
-        this.refreshMonthlyTotal()
         this.refreshMonthlyExpensesBreakdownByCategoryChart()
         this.refreshMonthlyExpensesBreakdownByShopChart()
         this.refreshMostExpensiveItems()
@@ -286,20 +279,7 @@ export default {
     }
   },
 
-  created() {},
-
   methods: {
-    async getTotalForMonth(month) {
-      const response = await API.query(
-        monthlyRunningTotalQueries.totalForMonth(month)
-      )
-      return response.monthly_running_total[0].sum || 0
-    },
-
-    async refreshMonthlyTotal() {
-      this.total = await this.getTotalForMonth(this.month)
-    },
-
     async getMonthlyRunningTotal(month) {
       const response = await API.query(
         monthlyRunningTotalQueries.forMonth(month)

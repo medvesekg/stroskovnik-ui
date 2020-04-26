@@ -1,7 +1,6 @@
 import axios from 'axios'
 
-const GRAPH_QL_ENDPOINT =
-  'https://stroskovnik-graphql.herokuapp.com/v1alpha1/graphql'
+const GRAPH_QL_ENDPOINT = process.env.NUXT_ENV_GRAPHQL_ENDPOINT
 
 export default {
   query(q) {

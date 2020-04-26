@@ -1,3 +1,4 @@
+require('dotenv').config()
 import pkg from './package'
 import colors from 'vuetify/es5/util/colors'
 
@@ -45,15 +46,28 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/pwa'
+    '@nuxtjs/pwa',
+    '@nuxtjs/apollo'
   ],
-  buildModules: ['@nuxtjs/vuetify'],
+  buildModules: [
+    '@nuxtjs/vuetify', 
+    '@nuxtjs/dotenv'
+  ],
 
   /*
    ** Axios module configuration
    */
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
+  },
+
+  apollo: {
+    // See https://github.com/nuxt-community/apollo-module
+    clientConfigs: {
+      default: {
+        httpEndpoint: process.env.NUXT_ENV_GRAPHQL_ENDPOINT
+      }
+    }
   },
 
   vuetify: {

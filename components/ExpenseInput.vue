@@ -52,7 +52,7 @@
             :error-messages="errors.collect(inputName('cost'))"
             :name="inputName('cost')"
             :disabled="mode === 'view'"
-            @keydown.enter="focusRef('discountInput')"
+            @keydown.enter="onCostEnter"
             @input="$emit('input', item)"
             label="Cena"
             data-vv-as="Cena"
@@ -67,8 +67,9 @@
             :error-messages="errors.collect(inputName('discount'))"
             :name="inputName('discount')"
             :disabled="mode === 'view'"
-            @keydown.enter="focusRef('quantityInput')"
+            @keydown.enter="onDiscountEnter"
             @input="$emit('input', item)"
+            type="text"
             label="Popust"
             data-vv-as="Popust"
             prefix="€"
@@ -263,6 +264,22 @@ export default {
         value = value.replace(',', '.')
       }
       return Number(value)
+    },
+    onCostEnter() {
+      this.focusRef('discountInput')
+      if (!this.item.discount) {
+        this.item.discount = 0
+        this.$emit('input', this.item)
+      }
+      this.$refs.discountInput.$el.querySelector('input').select()
+    },
+    onDiscountEnter() {
+      this.focusRef('quantityInput')
+      if (!this.item.quantity) {
+        this.item.quantity = 1
+        this.$emit('input', this.item)
+      }
+      this.$refs.quantityInput.$el.querySelector('input').select()
     }
   }
 }
