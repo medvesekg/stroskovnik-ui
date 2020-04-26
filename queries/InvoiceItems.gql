@@ -1,0 +1,14 @@
+query InvoiceItems($from: date, $to: date) {
+  invoice_items(where: {invoice: {date: {_gte: $from, _lte: $to}}}, order_by: {invoice: {date: asc}}) {
+    id
+    name
+    quantity
+    total
+    cost
+    category_id
+    invoice {
+        date
+        shop_id
+    }
+  }
+}

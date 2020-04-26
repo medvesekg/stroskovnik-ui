@@ -25,6 +25,8 @@
         :value="monthPickerValue"
         @input="onInput"
         :show-current="false"
+        :min="min"
+        :max="max"
         type="month"
       />
     </v-menu>
@@ -53,6 +55,21 @@ export default {
     height: {
       type: Number,
       default: null
+    },
+    max: {
+      type: String,
+      required: false,
+      default: null
+    },
+    min: {
+      type: String,
+      required: false,
+      default: null
+    },
+    display: {
+      type: String,
+      required: false,
+      default: undefined
     }
   },
 
@@ -64,7 +81,9 @@ export default {
 
   computed: {
     displayValue() {
-      return format(this.value, 'MMM yyyy')
+      return this.display === undefined
+        ? format(this.value, 'MMM yyyy')
+        : this.display
     },
     monthPickerValue() {
       return format(this.value, 'yyyy-MM')

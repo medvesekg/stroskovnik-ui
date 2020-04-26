@@ -106,7 +106,7 @@ export default {
 
   data() {
     return {
-      stagingItems: [this.defaultNewItem(), this.defaultNewItem()],
+      stagingItems: [this.defaultNewItem()],
       recentExpenses: [],
       date: this.today(),
       shop: null
