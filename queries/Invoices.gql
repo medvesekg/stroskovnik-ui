@@ -1,0 +1,12 @@
+query Invoices($from: date, $to: date) {
+  invoices(where: { date: {_gte: $from, _lte: $to}, totals: {sum: {}}}, order_by: {date: asc}) {
+    id
+    shop_id
+    date
+    totals {
+      sum
+      count
+      quantity
+    }
+  }
+}

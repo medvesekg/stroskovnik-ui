@@ -4,7 +4,7 @@ function userDateFormat(date) {
   if (!(date instanceof Date)) {
     date = new Date(date)
   }
-  return format(date, 'dd.MM.yyy')
+  return format(date, 'd. M. yyy')
 }
 
 function databaseDateFormat(date) {
