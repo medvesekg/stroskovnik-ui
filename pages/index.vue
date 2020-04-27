@@ -149,7 +149,6 @@
               </v-card>
             </v-col>
           </v-row>
-          <graphql-table :fields="['id', 'name']" resource="shops" />
         </v-container>
       </v-card>
     </v-col>
@@ -167,7 +166,6 @@ import ExpensesBreakdownChart from '@/components/widgets/ExpensesBreakdownChart'
 import TopItems from '@/components/widgets/TopItems'
 import { userDateFormat } from '@/format/date'
 import { userCurrencyFormat } from '@/format/currency'
-import GraphqlTable from '@/components/GraphqlTable'
 import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
 import format from 'date-fns/format'
@@ -180,8 +178,7 @@ export default {
     MonthInput,
     ExpensesChart,
     ExpensesBreakdownChart,
-    TopItems,
-    GraphqlTable
+    TopItems
   },
 
   apollo: {

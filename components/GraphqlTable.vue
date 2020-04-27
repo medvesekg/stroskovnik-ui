@@ -1,6 +1,14 @@
 <template>
   <div>
-    <v-text-field v-model="options.search"></v-text-field>
+    <div class="d-flex">
+      <v-select
+        v-model="searchField"
+        :items="[...fields, '*']"
+        class="shrink"
+      />
+      <v-text-field v-model="options.search"></v-text-field>
+    </div>
+
     <v-data-table
       :headers="headers"
       :items="items"
@@ -15,7 +23,7 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
+import CustomQuery from '@/queries/CustomQuery'
 import debounce from 'lodash/debounce'
 
 export default {
@@ -32,74 +40,31 @@ export default {
 
   apollo: {
     items() {
-      return {
-        query: gql`
-          query CustomQuery($limit : Int, $offset : Int, $order_by: ${
-            this.resource
-          }_order_by!, $where : ${this.resource}_bool_exp) {
-            ${this.resource}(
-              limit: $limit, 
-              offset: $offset, 
-              order_by: [$order_by]
-              where: $where
-              ) {
-              ${this.fields.join('\n')}
-            }
-          }
-        `,
-        variables() {
-          let orderBy = {}
-          if (this.options.sortBy[0]) {
-            orderBy = {
-              [this.options.sortBy[0]]: this.options.sortDesc[0]
-                ? 'desc'
-                : 'asc'
-            }
-          }
-          let where = {}
-          if (this.debouncedSearch) {
-            where = {
-              name: {
-                _ilike: `%${this.debouncedSearch}%`
-              }
-            }
-          }
+      this.itemsQuery = new CustomQuery({
+        resource: this.resource,
+        fields: this.fields,
+        orderBy: this.orderBy,
+        search: this.debouncedSearch,
+        searchFields: this.searchFields,
+        limit: this.options.itemsPerPage,
+        offset: (this.options.page - 1) * this.options.itemsPerPage
+      })
 
-          return {
-            limit: this.options.itemsPerPage,
-            offset: (this.options.page - 1) * this.options.itemsPerPage,
-            order_by: orderBy,
-            where: where
-          }
-        },
-        update: data => data[this.resource]
-      }
+      return this.itemsQuery.toApollo()
     },
+
     totalItemCount() {
+      this.itemsCountQuery = new CustomQuery({
+        resource: this.resource,
+        fields: ['aggregate.count'],
+        search: this.debouncedSearch,
+        searchFields: this.searchFields,
+        aggregate: true
+      })
+
       return {
-        query: gql`
-        query CustomQuery($where : ${this.resource}_bool_exp) {
-          ${this.resource}_aggregate (where: $where) {
-            aggregate {
-              count
-            }
-          }
-        }
-        `,
-        variables() {
-          let where = {}
-          if (this.debouncedSearch) {
-            where = {
-              name: {
-                _ilike: `%${this.debouncedSearch}%`
-              }
-            }
-          }
-          return {
-            where
-          }
-        },
-        update: data => data[`${this.resource}_aggregate`].aggregate.count
+        ...this.itemsCountQuery.toApollo(),
+        update: data => data[this.itemsCountQuery.name()].aggregate.count
       }
     }
   },
@@ -114,7 +79,11 @@ export default {
         search: ''
       },
       debouncedSearch: '',
-      itemsPerPageOptions: [5, 10, 20, 50]
+      searchField: '*',
+      itemsPerPageOptions: [5, 10, 20, 50],
+      query: null,
+      itemsQuery: null,
+      itemsCountQuery: null
     }
   },
 
@@ -126,17 +95,69 @@ export default {
           value: field
         }
       })
+    },
+    orderBy() {
+      return this.options.sortBy[0]
+        ? [
+            {
+              field: this.options.sortBy[0],
+              direction: this.options.sortDesc[0] ? 'desc' : 'asc'
+            }
+          ]
+        : null
+    },
+    searchFields() {
+      return this.searchField === '*' ? this.fields : [this.searchField]
     }
   },
 
   watch: {
     'options.search': {
       handler: function(search) {
-        this.options.page = 1
         this.updateDebouncedSerach(search)
+      }
+    },
+    'options.page': {
+      handler: function(page) {
+        this.itemsQuery.offset = this.itemsQuery.limit * (page - 1)
+      }
+    },
+    'options.sortBy': {
+      deep: true,
+      handler: function() {
+        this.itemsQuery.orderBy = this.orderBy
+      }
+    },
+    'options.sortDesc': {
+      deep: true,
+      handler: function() {
+        this.itemsQuery.orderBy = this.orderBy
+      }
+    },
+    'options.itemsPerPage': {
+      handler: function(perPage) {
+        this.itemsQuery.limit = perPage
+        this.itemsQuery.offset = perPage * (this.page - 1)
+      }
+    },
+    debouncedSearch: {
+      handler: function(search) {
+        this.options.page = 1
+        this.itemsQuery.search = search
+        this.itemsCountQuery.search = search
+      }
+    },
+    searchField: {
+      handler: function(searchField) {
+        if (this.options.search) {
+          this.options.page = 1
+        }
+        this.itemsQuery.searchFields = this.searchFields
+        this.itemsCountQuery.searchFields = this.searchFields
       }
     }
   },
+
   methods: {
     updateDebouncedSerach: debounce(function(search) {
       this.debouncedSearch = search

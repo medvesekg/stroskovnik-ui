@@ -1,0 +1,227 @@
+{
+	"invoice_items": {
+		"total": {
+			"type": "numeric"
+		},
+		"id": {
+			"type": "integer"
+		},
+		"cost": {
+			"type": "numeric"
+		},
+		"category_id": {
+			"type": "integer"
+		},
+		"quantity": {
+			"type": "numeric"
+		},
+		"invoice_id": {
+			"type": "integer"
+		},
+		"created_at": {
+			"type": "timestamp with time zone"
+		},
+		"updated_at": {
+			"type": "timestamp with time zone"
+		},
+		"name": {
+			"type": "text"
+		},
+		"category": {
+			"type": "relation",
+			"table": "categories"
+		},
+		"invoice": {
+			"type": "relation",
+			"table": "invoices"
+		}
+	},
+	"categories": {
+		"id": {
+			"type": "integer"
+		},
+		"category_group_id": {
+			"type": "integer"
+		},
+		"name": {
+			"type": "text"
+		},
+		"category_group": {
+			"type": "relation",
+			"table": "category_groups"
+		},
+		"invoice_items": {
+			"type": "relation",
+			"table": "invoice_items"
+		}
+	},
+	"category_groups": {
+		"id": {
+			"type": "integer"
+		},
+		"parent_id": {
+			"type": "integer"
+		},
+		"name": {
+			"type": "text"
+		},
+		"parent": {
+			"type": "relation",
+			"table": "category_groups"
+		},
+		"categories": {
+			"type": "relation",
+			"table": "categories"
+		}
+	},
+	"invoices": {
+		"id": {
+			"type": "integer"
+		},
+		"date": {
+			"type": "date"
+		},
+		"shop_id": {
+			"type": "integer"
+		},
+		"created_at": {
+			"type": "timestamp with time zone"
+		},
+		"updated_at": {
+			"type": "timestamp with time zone"
+		},
+		"file": {
+			"type": "text"
+		},
+		"shop": {
+			"type": "relation",
+			"table": "shops"
+		},
+		"items": {
+			"type": "relation",
+			"table": "invoice_items"
+		}
+	},
+	"shops": {
+		"id": {
+			"type": "integer"
+		},
+		"name": {
+			"type": "text"
+		},
+		"invoices": {
+			"type": "relation",
+			"table": "invoices"
+		}
+	},
+	"expenses_by_day": {
+		"date": {
+			"type": "date"
+		},
+		"sum": {
+			"type": "numeric"
+		}
+	},
+	"invoice_item_totals": {
+		"invoice_item_id": {
+			"type": "integer"
+		},
+		"total": {
+			"type": "numeric"
+		},
+		"invoice_item": {
+			"type": "relation",
+			"table": "invoice_items"
+		}
+	},
+	"invoice_sums": {
+		"invoice_id": {
+			"type": "integer"
+		},
+		"sum": {
+			"type": "numeric"
+		},
+		"invoice": {
+			"type": "relation",
+			"table": "invoices"
+		}
+	},
+	"item_popularity": {
+		"times_bought": {
+			"type": "bigint"
+		},
+		"total_quantity": {
+			"type": "numeric"
+		},
+		"month": {
+			"type": "timestamp with time zone"
+		},
+		"item_name": {
+			"type": "text"
+		}
+	},
+	"monthly_expenses_breakdown_by_category": {
+		"category_id": {
+			"type": "integer"
+		},
+		"month": {
+			"type": "date"
+		},
+		"sum": {
+			"type": "numeric"
+		},
+		"name": {
+			"type": "text"
+		}
+	},
+	"monthly_expenses_breakdown_by_shop": {
+		"shop_id": {
+			"type": "integer"
+		},
+		"month": {
+			"type": "date"
+		},
+		"sum": {
+			"type": "numeric"
+		},
+		"name": {
+			"type": "text"
+		}
+	},
+	"monthly_running_total": {
+		"date": {
+			"type": "date"
+		},
+		"sum": {
+			"type": "numeric"
+		}
+	},
+	"products": {
+		"id": {
+			"type": "integer"
+		},
+		"ean_code": {
+			"type": "integer"
+		},
+		"name": {
+			"type": "text"
+		}
+	},
+	"shop_popularity": {
+		"id": {
+			"type": "integer"
+		},
+		"times_visited": {
+			"type": "bigint"
+		},
+		"items_bought": {
+			"type": "numeric"
+		},
+		"month": {
+			"type": "timestamp with time zone"
+		},
+		"name": {
+			"type": "text"
+		}
+	}
+}
