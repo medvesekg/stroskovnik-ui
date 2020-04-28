@@ -1,17 +1,13 @@
 <template>
   <div>
-    <h1 class="text-center">Vsi stroški</h1>
+    <h1 class="text-center">Kategorije</h1>
     <graphql-table
       :fields="[
-        'invoice.date',
-        'invoice.shop.name',
         'name',
-        'category.name',
-        'quantity',
-        'cost',
-        'total'
+        'invoice_items_aggregate.aggregate.count',
+        'invoice_items_aggregate.aggregate.sum.total'
       ]"
-      resource="invoice_items"
+      resource="categories"
     />
   </div>
 </template>

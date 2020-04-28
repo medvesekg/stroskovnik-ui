@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h1 class="text-center">Vsi računi</h1>
+    <h1 class="text-center">Trgovine</h1>
     <graphql-table
-      :fields="['date', 'shop.name', 'totals.sum', 'totals.count']"
-      resource="invoices"
+      :fields="['name', 'invoices_aggregate.aggregate.count']"
+      resource="shops"
     />
   </div>
 </template>

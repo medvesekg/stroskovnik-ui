@@ -89,10 +89,11 @@ export default class CustomQuery {
       let pointer = orderBy
       for (let i = 0; i < path.length; i++) {
         const currentField = path[i]
+        if (currentField === 'aggregate') continue
         if (i < path.length - 1) {
           pointer[currentField] = {}
         } else {
-          pointer[currentField] = direction
+          pointer[currentField] = direction + '_nulls_last'
         }
         pointer = pointer[currentField]
       }

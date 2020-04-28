@@ -5,8 +5,9 @@
         v-model="searchField"
         :items="[...fields, '*']"
         class="shrink"
+        label="Polje za iskanje"
       />
-      <v-text-field v-model="options.search"></v-text-field>
+      <v-text-field v-model="options.search" label="Iskanje"></v-text-field>
     </div>
 
     <v-data-table

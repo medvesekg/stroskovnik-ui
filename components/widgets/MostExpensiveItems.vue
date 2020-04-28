@@ -77,7 +77,8 @@ export default {
 
   data() {
     return {
-      type: 'single'
+      type: 'single',
+      invoiceItems: []
     }
   },
   computed: {

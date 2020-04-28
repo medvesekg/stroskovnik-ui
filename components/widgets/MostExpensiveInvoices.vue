@@ -71,7 +71,8 @@ export default {
 
   data() {
     return {
-      type: 'totalCost'
+      type: 'totalCost',
+      invoices: []
     }
   },
 

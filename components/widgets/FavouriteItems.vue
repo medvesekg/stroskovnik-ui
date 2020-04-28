@@ -61,7 +61,8 @@ export default {
 
   data() {
     return {
-      type: 'totalQuantity'
+      type: 'totalQuantity',
+      invoiceItems: []
     }
   },
 

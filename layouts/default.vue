@@ -68,6 +68,16 @@ export default {
           icon: 'note',
           title: 'Računi',
           to: '/invoices'
+        },
+        {
+          icon: 'store',
+          title: 'Trgovine',
+          to: '/shops'
+        },
+        {
+          icon: 'category',
+          title: 'Kategorije',
+          to: '/categories'
         }
       ],
       miniVariant: false,

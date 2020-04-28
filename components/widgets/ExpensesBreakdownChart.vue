@@ -86,7 +86,8 @@ export default {
   data() {
     return {
       types: types,
-      groups: {}
+      groups: {},
+      invoiceItems: []
     }
   },
 

@@ -1,9 +1,10 @@
+require('dotenv').config()
 const fs = require('fs')
 const axios = require('axios')
 
 function getTableColumns() {
   return axios
-    .post('https://stroskovnik-test.herokuapp.com/v1/query', {
+    .post(process.env.HASURA_QUERY_ENDPOINT, {
       type: 'run_sql',
       args: {
         sql:
@@ -37,7 +38,7 @@ function getTableColumns() {
 
 function getMetadata() {
   return axios
-    .post('https://stroskovnik-test.herokuapp.com/v1/query', {
+    .post(process.env.HASURA_QUERY_ENDPOINT, {
       type: 'export_metadata',
       args: {}
     })
@@ -88,7 +89,7 @@ function getMetadata() {
 
 function getForeignKeys() {
   return axios
-    .post('https://stroskovnik-test.herokuapp.com/v1/query', {
+    .post(process.env.HASURA_QUERY_ENDPOINT, {
       type: 'run_sql',
       args: {
         sql: `
