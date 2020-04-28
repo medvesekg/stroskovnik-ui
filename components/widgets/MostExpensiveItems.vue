@@ -78,7 +78,8 @@ export default {
   data() {
     return {
       type: 'single',
-      invoiceItems: []
+      invoiceItems: [],
+      shops: []
     }
   },
   computed: {
