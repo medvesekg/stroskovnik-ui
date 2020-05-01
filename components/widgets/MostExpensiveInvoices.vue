@@ -20,7 +20,7 @@
       </thead>
       <tbody>
         <tr v-for="invoice in sortedInvoices" :key="invoice.id">
-          <td>{{ shops[invoice.shop_id].name }}</td>
+          <td>{{ getShopName(invoice.shop_id) }}</td>
           <td>{{ invoice.totals.count }}</td>
           <td>{{ userCurrencyFormat(invoice.totals.sum) }}</td>
           <td>{{ userDateFormat(invoice.date) }}</td>
@@ -93,6 +93,9 @@ export default {
     }
   },
   methods: {
+    getShopName(shopId) {
+      return this.shops[shopId] ? this.shops[shopId].name : ''
+    },
     userCurrencyFormat,
     userDateFormat
   }

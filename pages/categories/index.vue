@@ -67,30 +67,35 @@ export default {
             this.$refs.graphqlTable.reset()
           }
         })
-        .catch(() => {
+        .catch(e => {
+          this.$store.dispatch('snackbar/error', e.message)
           this.newCategory = newCategory
         })
     },
 
     deleteCategory(category) {
-      this.$apollo.mutate({
-        mutation: gql`
-          mutation DeleteCategory($id: Int!) {
-            delete_categories_by_pk(id: $id) {
-              id
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation DeleteCategory($id: Int!) {
+              delete_categories_by_pk(id: $id) {
+                id
+              }
             }
+          `,
+
+          variables: {
+            id: category.id
+          },
+
+          update: () => {
+            this.$refs.graphqlTable.reset()
+            this.$store.dispatch('snackbar/success', 'Kategorija odstranjena')
           }
-        `,
-
-        variables: {
-          id: category.id
-        },
-
-        update: () => {
-          this.$refs.graphqlTable.reset()
-          this.$store.dispatch('snackbar/success', 'Kategorija odstranjena')
-        }
-      })
+        })
+        .catch(e => {
+          this.$store.dispatch('snackbar/error', e.message)
+        })
     },
 
     clearCategoryCache(apolloStore) {

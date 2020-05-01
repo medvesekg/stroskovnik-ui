@@ -11,6 +11,7 @@
       {{ $store.state.snackbar.message }}
     </v-snackbar>
     <v-navigation-drawer
+      v-if="$store.state.auth.user.email"
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
@@ -35,13 +36,16 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar :clipped-left="clipped" app fixed>
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-app-bar-nav-icon
+        @click="drawer = !drawer"
+        v-if="$store.state.auth.user.email"
+      />
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <v-menu v-if="$store.state.user.email" open-on-hover bottom offset-y>
+      <v-menu v-if="$store.state.auth.user.email" open-on-hover bottom offset-y>
         <template #activator="{on}">
           <div v-on="on">
-            {{ $store.state.user.email }}
+            {{ $store.state.auth.user.email }}
           </div>
         </template>
         <v-list>
@@ -63,6 +67,7 @@
 <script>
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'firebase/database'
 
 export default {
   data() {
@@ -109,20 +114,50 @@ export default {
     }
   },
   created() {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        user.getIdTokenResult().then(token => {
-          // console.log(token)
-        })
-        this.$store.commit('user/setUser', user)
+        let token = await user.getIdToken()
+        let idTokenResult = await user.getIdTokenResult()
+        let hasuraClaim = idTokenResult.claims['https://hasura.io/jwt/claims']
+        this.$store.commit('auth/SET_USER', user)
+
+        if (hasuraClaim) {
+          this.$store.commit('auth/SET_TOKEN', token)
+          this.$store.commit(
+            'auth/SET_ROLE',
+            hasuraClaim['x-hasura-default-role']
+          )
+          this.$apolloHelpers.onLogin(token)
+          this.$router.push('/')
+        } else {
+          const metadataRef = firebase
+            .database()
+            .ref(`metadata/${user.uid}/refreshTime`)
+
+          metadataRef.on('value', async data => {
+            if (!data.exists) return
+            token = await user.getIdToken(true)
+            idTokenResult = await user.getIdTokenResult()
+            hasuraClaim =
+              idTokenResult.claims['https://hasura.io/jwt/claims'] || {}
+            this.$store.commit('auth/SET_TOKEN', token)
+            this.$store.commit(
+              'auth/SET_ROLE',
+              hasuraClaim['x-hasura-default-role']
+            )
+            this.$apolloHelpers.onLogin(token)
+            this.$router.push('/')
+          })
+        }
       } else {
-        this.$store.commit('user/resetUser')
+        this.$store.dispatch('auth/logout')
       }
     })
   },
   methods: {
     logout() {
       firebase.auth().signOut()
+      this.$router.push('/login')
     }
   }
 }

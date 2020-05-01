@@ -23,7 +23,7 @@
       <tbody>
         <tr v-for="item in mostExpensiveItems" :key="item.id">
           <td>{{ item.name }}</td>
-          <td>{{ shops[item.invoice.shop_id].name }}</td>
+          <td>{{ shopName[item.invoice.shop_id] }}</td>
           <td>{{ userCurrencyFormat(item.cost) }}</td>
           <td v-if="type === 'total'">{{ item.quantity }}</td>
           <td v-if="type === 'total'">
@@ -93,7 +93,11 @@ export default {
   },
   methods: {
     userDateFormat,
-    userCurrencyFormat
+    userCurrencyFormat,
+
+    shopName(id) {
+      return this.shops[id] ? this.shops[id].name : ''
+    }
   }
 }
 </script>

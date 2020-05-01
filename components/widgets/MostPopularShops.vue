@@ -73,7 +73,8 @@ export default {
   data() {
     return {
       type: 'mostVisited',
-      invoices: []
+      invoices: [],
+      shops: []
     }
   },
 
