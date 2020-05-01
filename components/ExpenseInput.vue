@@ -198,9 +198,11 @@ export default {
     search: {
       handler: debounce(function(q) {
         if (!q) return
-        API.query(invoiceItemQueries.search(q, this.shop)).then(response => {
-          this.products = response.invoice_items
-        })
+        API.query(invoiceItemQueries.search(q, this.shop), this.$store).then(
+          response => {
+            this.products = response.invoice_items
+          }
+        )
       }, 200)
     },
     value: {
@@ -249,14 +251,15 @@ export default {
         this.$emit('input', this.item)
       }
       if (!this.item.cost && this.shop) {
-        API.query(invoiceItemQueries.lastCost(name, this.shop)).then(
-          response => {
-            if (response.invoice_items.length) {
-              this.item.cost = response.invoice_items[0].cost
-              this.$emit('input', this.item)
-            }
+        API.query(
+          invoiceItemQueries.lastCost(name, this.shop),
+          this.$store
+        ).then(response => {
+          if (response.invoice_items.length) {
+            this.item.cost = response.invoice_items[0].cost
+            this.$emit('input', this.item)
           }
-        )
+        })
       }
     },
     toNumber(value) {

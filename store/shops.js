@@ -22,13 +22,15 @@ export const actions = {
       return dispatch('fetchShops')
     }
   },
-  async fetchShops({ commit }) {
-    const response = await API.query(shopQueries.getAll)
+  async fetchShops({ commit, rootState }) {
+    const response = await API.query(shopQueries.getAll, { state: rootState })
     commit('SET_SHOPS', response.shops)
     return response.shops
   },
-  async createShop({ commit }, name) {
-    const response = await API.query(shopQueries.create(name))
+  async createShop({ commit, rootState }, name) {
+    const response = await API.query(shopQueries.create(name), {
+      state: rootState
+    })
     commit('ADD_SHOP', response.insert_shops.returning[0])
     return response.insert_shops.returning[0]
   },

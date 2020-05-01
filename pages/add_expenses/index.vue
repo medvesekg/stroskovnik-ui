@@ -179,9 +179,11 @@ export default {
     },
 
     fetchRecentExpenses() {
-      return API.query(invoiceItemsQueries.recent(10)).then(response => {
-        this.recentExpenses = response.invoice_items
-      })
+      return API.query(invoiceItemsQueries.recent(10), this.$store).then(
+        response => {
+          this.recentExpenses = response.invoice_items
+        }
+      )
     },
 
     removeItem(index) {
@@ -213,7 +215,10 @@ export default {
     },
 
     async createNewInvoice(invoice) {
-      const response = await API.query(invoiceQueries.create(invoice))
+      const response = await API.query(
+        invoiceQueries.create(invoice),
+        this.$store
+      )
       return response.insert_invoices.returning[0]
     },
 
@@ -228,7 +233,10 @@ export default {
         }
       })
 
-      return API.query(invoiceItemsQueries.createMany(itemsToInsert))
+      return API.query(
+        invoiceItemsQueries.createMany(itemsToInsert),
+        this.$store
+      )
     },
 
     today() {
@@ -247,12 +255,12 @@ export default {
     },
 
     async removeRecentItem(id) {
-      await API.query(invoiceItemsQueries.delete(id))
+      await API.query(invoiceItemsQueries.delete(id), this.$store)
       const index = this.recentExpenses.findIndex(item => item.id === id)
       this.recentExpenses.splice(index, 1)
     },
     async updateRecentItem(item) {
-      await API.query(invoiceItemsQueries.update(item.id, item))
+      await API.query(invoiceItemsQueries.update(item.id, item), this.$store)
       this.fetchRecentExpenses()
     },
     addNewStagingItem() {

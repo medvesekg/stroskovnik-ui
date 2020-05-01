@@ -19,8 +19,10 @@ export const actions = {
       return dispatch('fetchCategories')
     }
   },
-  async fetchCategories({ state, commit }) {
-    const response = await API.query(categoryQueries.getAll())
+  async fetchCategories({ state, commit, rootState }) {
+    const response = await API.query(categoryQueries.getAll(), {
+      state: rootState
+    })
     commit('SET_CATEGORIES', response.categories)
     return response.all
   }

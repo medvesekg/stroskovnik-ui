@@ -48,8 +48,6 @@ export default {
    ** Nuxt.js modules
    */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
     '@nuxtjs/pwa',
     '@nuxtjs/apollo'
   ],
@@ -58,12 +56,6 @@ export default {
     '@nuxtjs/dotenv'
   ],
 
-  /*
-   ** Axios module configuration
-   */
-  axios: {
-    // See https://github.com/nuxt-community/axios-module#options
-  },
 
   apollo: {
     // See https://github.com/nuxt-community/apollo-module

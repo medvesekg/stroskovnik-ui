@@ -13,13 +13,13 @@
     "precommit": "npm run lint",
     "test": "jest",
     "generate:definitions": "node generateDefinitions.js",
-    "heroku-postbuild": "node generateDefinitions.js && nuxt build" 
+    "heroku-postbuild": "node generateDefinitions.js && nuxt build"
   },
   "dependencies": {
     "@nuxtjs/apollo": "^4.0.0-rc19",
-    "@nuxtjs/axios": "^5.9.5",
     "@nuxtjs/pwa": "^2.6.0",
     "@nuxtjs/vuetify": "^1.11.0",
+    "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "cross-env": "^5.2.1",
     "date-fns": "^2.10.0",
