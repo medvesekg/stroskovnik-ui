@@ -4,12 +4,12 @@
       <v-card>
         <v-container>
           <v-row>
-            <v-col class="d-flex align-center">
+            <v-col class="d-flex align-center" cols="12" sm="4">
               <span>
                 Dobrodošli v stroškovniku
               </span>
             </v-col>
-            <v-col class="d-flex align-center">
+            <v-col class="d-flex align-center" cols="12" sm="4">
               <month-input
                 v-model="month"
                 :max="maxDate"
@@ -26,7 +26,7 @@
               </v-btn>
             </v-col>
             <v-spacer />
-            <v-col class="d-flex align-end justify-end">
+            <v-col class="d-flex align-end justify-end" cols="12" sm="4">
               <v-btn to="/add_expenses" color="secondary" link
                 >Dodaj strošek</v-btn
               >

@@ -12,14 +12,14 @@
     </v-app-bar>
     <v-container>
       <v-row>
-        <v-col sm="10">
+        <v-col sm="12" md="10">
           <v-skeleton-loader
             v-if="$apollo.queries.dailyExpenses.loading"
             type="image"
           />
           <app-chart v-else :options="chart" :width="3" :height="1" />
         </v-col>
-        <v-col sm="2">
+        <v-col sm="12" md="2">
           <total-expenses :from="from" :to="to" />
           <total-invoices :from="from" :to="to" />
           <total-invoice-items :from="from" :to="to" />
