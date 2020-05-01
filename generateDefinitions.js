@@ -2,6 +2,8 @@ require('dotenv').config()
 const fs = require('fs')
 const axios = require('axios')
 
+axios.defaults.headers.post['x-hasura-admin-secret'] = process.env.HASURA_GRAPHQL_ADMIN_SECRET
+
 function getTableColumns() {
   return axios
     .post(process.env.HASURA_QUERY_ENDPOINT, {
