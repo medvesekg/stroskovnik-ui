@@ -19,7 +19,15 @@
       :footer-props="{
         'items-per-page-options': itemsPerPageOptions
       }"
-    />
+    >
+      <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
+      <template
+        v-for="(_, name) in $scopedSlots"
+        :slot="name"
+        slot-scope="slotData"
+        ><slot :name="name" v-bind="slotData"
+      /></template>
+    </v-data-table>
   </div>
 </template>
 
@@ -36,6 +44,11 @@ export default {
     fields: {
       type: Array,
       required: true
+    },
+    extraColumns: {
+      type: Array,
+      required: false,
+      default: () => []
     }
   },
 
@@ -90,12 +103,14 @@ export default {
 
   computed: {
     headers() {
-      return this.fields.map(field => {
-        return {
-          text: field,
-          value: field
-        }
-      })
+      return this.fields
+        .map(field => {
+          return {
+            text: field,
+            value: field
+          }
+        })
+        .concat(this.extraColumns)
     },
     orderBy() {
       return this.options.sortBy[0]
@@ -162,7 +177,18 @@ export default {
   methods: {
     updateDebouncedSerach: debounce(function(search) {
       this.debouncedSearch = search
-    }, 400)
+    }, 400),
+
+    reset() {
+      const cache = this.$apollo.getClient().cache.data
+      for (const query in cache.data) {
+        if ([this.resource].includes(cache.data[query].__typename)) {
+          cache.delete(query)
+        }
+      }
+      this.$apollo.queries.items.refetch()
+      this.$apollo.queries.totalItemCount.refetch()
+    }
   }
 }
 </script>

@@ -20,6 +20,8 @@ module.exports = {
   // add your custom rules here
   rules: {
     "no-console": "off",
-    "no-unreachable": "off"
+    "no-unreachable": "off",
+    "vue/no-unused-components": "off",
+    "no-unused-vars": "off"
   }
 }

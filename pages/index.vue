@@ -61,6 +61,7 @@
                     <v-col sm="6">
                       <most-popular-items :from="from" :to="to" />
                     </v-col>
+
                     <v-col sm="6">
                       <most-expensive-invoices :from="from" :to="to" />
                     </v-col>
@@ -107,7 +108,7 @@ export default {
   },
 
   apollo: {
-    minDate: {
+    minDateInDb: {
       query: gql`
         query MinDate {
           invoices_aggregate {
@@ -121,7 +122,7 @@ export default {
       `,
       update: data => data.invoices_aggregate.aggregate.min.date
     },
-    maxDate: {
+    maxDateInDb: {
       query: gql`
         query MaxDate {
           invoices_aggregate {
@@ -163,6 +164,15 @@ export default {
       const to = format(this.toD, 'd MMM yyyy')
 
       return `${from} - ${to}`
+    },
+    today() {
+      return new Date()
+    },
+    minDate() {
+      return this.minDateInDb
+    },
+    maxDate() {
+      return this.maxDateInDb
     }
   },
 
