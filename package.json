@@ -13,7 +13,7 @@
     "precommit": "npm run lint",
     "test": "jest",
     "generate:definitions": "node generateDefinitions.js",
-    "heroku-postbuild": "node generateDefinitions.js" 
+    "heroku-postbuild": "nuxt build && node generateDefinitions.js" 
   },
   "dependencies": {
     "@nuxtjs/apollo": "^4.0.0-rc19",
