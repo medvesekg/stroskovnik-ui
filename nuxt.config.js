@@ -29,6 +29,10 @@ export default {
     middleware: 'auth'
   },
 
+  serverMiddleware: [
+    'redirect-ssl'
+  ],
+
   /*
    ** Customize the progress-bar color
    */
