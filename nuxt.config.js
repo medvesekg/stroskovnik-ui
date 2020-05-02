@@ -29,10 +29,6 @@ export default {
     middleware: 'auth'
   },
 
-  serverMiddleware: [
-    '@/middleware_server/https'
-  ],
-
   /*
    ** Customize the progress-bar color
    */
