@@ -83,7 +83,9 @@ export default {
       const grouped = this.invoices.reduce((grouped, invoice) => {
         if (grouped[invoice.shop_id] === undefined) {
           grouped[invoice.shop_id] = {
-            name: this.shops[invoice.shop_id].name,
+            name: this.shops[invoice.shop_id]
+              ? this.shops[invoice.shop_id].name
+              : '',
             timesVisited: 0,
             itemsCount: 0,
             totalQuantity: 0,

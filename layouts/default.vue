@@ -45,10 +45,18 @@
       <v-menu v-if="$store.state.auth.user.email" open-on-hover bottom offset-y>
         <template #activator="{on}">
           <div v-on="on">
-            {{ $store.state.auth.user.email }}
+            <v-icon class="account-icon">account_circle</v-icon>
+            <span class="account-email">{{
+              $store.state.auth.user.email
+            }}</span>
           </div>
         </template>
         <v-list>
+          <v-list-item class="account-email-list-item">
+            <v-list-item-title>
+              {{ $store.state.auth.user.email }}
+            </v-list-item-title>
+          </v-list-item>
           <v-list-item @click="logout">
             <v-list-item-title>Odjava</v-list-item-title>
           </v-list-item>
@@ -70,6 +78,12 @@ import 'firebase/auth'
 import 'firebase/database'
 
 export default {
+  head() {
+    return {
+      title: this.title
+    }
+  },
+
   data() {
     return {
       clipped: false,
@@ -110,7 +124,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Stroškovnik'
+      title: 'Gnar'
     }
   },
   created() {
@@ -162,3 +176,19 @@ export default {
   }
 }
 </script>
+<style scoped>
+@media (min-width: 600px) {
+  .account-icon {
+    display: none;
+  }
+  .account-email-list-item {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-email {
+    display: none;
+  }
+}
+</style>

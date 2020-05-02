@@ -39,14 +39,14 @@
               <v-card>
                 <v-container>
                   <v-row>
-                    <v-col sm="6">
+                    <v-col cols="12" sm="6">
                       <expenses-breakdown-chart
                         :from="from"
                         :to="to"
                         type="categories"
                       />
                     </v-col>
-                    <v-col sm="6">
+                    <v-col cols="12" sm="6">
                       <expenses-breakdown-chart
                         :from="from"
                         :to="to"

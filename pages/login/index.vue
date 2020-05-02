@@ -13,7 +13,7 @@
           </v-row>
           <v-row class="justify-center">
             <v-btn @click="googleLogin" :loading="loading" color="primary">
-              Prijava z Google računom
+              Prijava z Googeljnom
             </v-btn>
           </v-row>
         </v-container>
@@ -46,9 +46,8 @@ export default {
         .auth()
         .signInWithPopup(googleProvider)
         .then(event => {
-          console.log(event)
           this.error = ''
-          this.$router.push('/')
+          // this.$router.push('/')
         })
         .catch(e => {
           this.error = e.message

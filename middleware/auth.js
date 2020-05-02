@@ -6,7 +6,7 @@ export default function({ store, redirect, error }) {
   if (store.state.auth.role !== 'admin') {
     return error({
       statusCode: 401,
-      message: 'Not authorized'
+      message: 'Tega ne smeš videt'
     })
   }
 }
