@@ -30,7 +30,7 @@ export default {
   },
 
   serverMiddleware: [
-    'redirect-ssl'
+    //'redirect-ssl'
   ],
 
   /*
