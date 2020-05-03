@@ -20,7 +20,7 @@
         'items-per-page-options': itemsPerPageOptions
       }"
     >
-      <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
+      <slot v-for="(_, name) in $slots" :slot="name" :name="name" />
       <template
         v-for="(_, name) in $scopedSlots"
         :slot="name"

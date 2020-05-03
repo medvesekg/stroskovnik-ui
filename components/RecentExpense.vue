@@ -23,20 +23,20 @@
             v-model="item.name"
             :autofocus="autofocus"
             :disabled="!editing"
-            @keydown.enter="focusNextInput"
             label="Ime artikla"
+            @keydown.enter="focusNextInput"
           />
         </v-flex>
         <v-flex xl2 lg2 xs12>
           <v-autocomplete
             v-model="item.category_id"
             :items="categories"
-            @keydown.native.enter="focusNextInput"
             :disabled="!editing"
             item-text="name"
             item-value="id"
             placeholder="Kategorija"
             label="Kategorija"
+            @keydown.native.enter="focusNextInput"
           >
           </v-autocomplete>
         </v-flex>
@@ -45,41 +45,41 @@
           <v-text-field
             v-model="item.cost"
             :disabled="!editing"
-            @keydown.native.enter="addItem"
             label="Cena"
             prefix="€"
+            @keydown.native.enter="addItem"
           />
         </v-flex>
         <v-flex xl1 lg1 xs12>
           <v-text-field
             v-model="item.quantity"
             :disabled="!editing"
-            @keydown.enter="focusNextInput"
             label="Količina"
+            @keydown.enter="focusNextInput"
           />
         </v-flex>
         <v-flex xl1 lg1 xs12>
           <v-text-field
             v-model="total"
-            @keydown.native.enter="addItem"
             disabled
             label="Cena skupaj"
             prefix="€"
+            @keydown.native.enter="addItem"
           />
         </v-flex>
         <v-flex v-if="!editing" xl1 lg1 xs12 text-xs-center>
-          <v-btn @click="editing = true" color="warning" small fab>
+          <v-btn color="warning" small fab @click="editing = true">
             <v-icon>edit</v-icon>
           </v-btn>
         </v-flex>
         <v-flex v-if="editing" xl2 lg1 xs12 text-xs-center>
-          <v-btn @click="cancel" color="gray" small fab>
+          <v-btn color="gray" small fab @click="cancel">
             <v-icon>cancel</v-icon>
           </v-btn>
-          <v-btn @click="update" color="success" small fab>
+          <v-btn color="success" small fab @click="update">
             <v-icon>check</v-icon>
           </v-btn>
-          <v-btn @click="remove" color="error" small fab>
+          <v-btn color="error" small fab @click="remove">
             <v-icon>delete</v-icon>
           </v-btn>
         </v-flex>

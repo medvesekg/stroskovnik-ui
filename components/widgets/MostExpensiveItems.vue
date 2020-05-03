@@ -5,8 +5,8 @@
       <v-spacer />
       <v-switch
         :input-value="type === 'total'"
-        @change="type = $event ? 'total' : 'single'"
         :label="type === 'single' ? 'Posamično' : 'Skupaj'"
+        @change="type = $event ? 'total' : 'single'"
       />
     </v-app-bar>
     <v-simple-table>

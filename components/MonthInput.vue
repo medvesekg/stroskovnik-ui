@@ -15,19 +15,19 @@
           :label="label"
           :disabled="disabled"
           :height="height"
-          @input="$emit('input', $event)"
-          v-on="on"
           readonly
           hide-details
+          @input="$emit('input', $event)"
+          v-on="on"
         ></v-text-field>
       </template>
       <v-date-picker
         :value="monthPickerValue"
-        @input="onInput"
         :show-current="false"
         :min="min"
         :max="max"
         type="month"
+        @input="onInput"
       />
     </v-menu>
   </div>

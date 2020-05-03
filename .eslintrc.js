@@ -22,6 +22,7 @@ module.exports = {
     "no-console": "off",
     "no-unreachable": "off",
     "vue/no-unused-components": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "vue/no-unused-vars": "off"
   }
 }

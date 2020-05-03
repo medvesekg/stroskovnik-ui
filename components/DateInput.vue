@@ -13,9 +13,9 @@
         :label="label"
         :disabled="disabled"
         :height="height"
+        readonly
         @input="$emit('input', $event)"
         v-on="on"
-        readonly
       ></v-text-field>
     </template>
     <v-date-picker :value="value" @input="onInput" />

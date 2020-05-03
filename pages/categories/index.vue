@@ -13,7 +13,7 @@
       resource="categories"
     >
       <template #item.actions="{item}">
-        <v-btn @click="deleteCategory(item)" color="error" small>
+        <v-btn color="error" small @click="deleteCategory(item)">
           <v-icon>delete</v-icon>
         </v-btn>
       </template>
@@ -21,7 +21,7 @@
     <div class="d-flex align-center">
       <v-text-field v-model="newCategory" label="Nova kategorija">
         <template #append-outer>
-          <v-btn @click="addCategory" color="primary">Dodaj</v-btn>
+          <v-btn color="primary" @click="addCategory">Dodaj</v-btn>
         </template>
       </v-text-field>
     </div>

@@ -12,7 +12,7 @@
             </v-alert>
           </v-row>
           <v-row class="justify-center">
-            <v-btn @click="googleLogin" :loading="loading" color="primary">
+            <v-btn :loading="loading" color="primary" @click="googleLogin">
               Prijava z Googeljnom
             </v-btn>
           </v-row>
@@ -25,6 +25,7 @@
 <script>
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import axios from 'axios'
 
 export default {
   data() {
@@ -38,6 +39,11 @@ export default {
     }
   },
 
+  created() {
+    // ping the to wake up the heroku dyno if sleeping
+    axios.get(process.env.NUXT_ENV_HASURA_HEALTH_ENDPOINT)
+  },
+
   methods: {
     googleLogin() {
       const googleProvider = new firebase.auth.GoogleAuthProvider()
@@ -47,7 +53,6 @@ export default {
         .signInWithPopup(googleProvider)
         .then(event => {
           this.error = ''
-          // this.$router.push('/')
         })
         .catch(e => {
           this.error = e.message

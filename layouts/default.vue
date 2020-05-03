@@ -4,9 +4,9 @@
       :value="$store.state.snackbar.message"
       :color="$store.state.snackbar.color"
       :timeout="3000"
-      @input="!$event && $store.dispatch('snackbar/reset')"
       top
       right
+      @input="!$event && $store.dispatch('snackbar/reset')"
     >
       {{ $store.state.snackbar.message }}
     </v-snackbar>
@@ -37,8 +37,8 @@
     </v-navigation-drawer>
     <v-app-bar :clipped-left="clipped" app fixed>
       <v-app-bar-nav-icon
-        @click="drawer = !drawer"
         v-if="$store.state.auth.user.email"
+        @click="drawer = !drawer"
       />
       <v-toolbar-title v-text="title" />
       <v-spacer />
@@ -78,12 +78,6 @@ import 'firebase/auth'
 import 'firebase/database'
 
 export default {
-  head() {
-    return {
-      title: this.title
-    }
-  },
-
   data() {
     return {
       clipped: false,
@@ -142,7 +136,8 @@ export default {
             hasuraClaim['x-hasura-default-role']
           )
           this.$apolloHelpers.onLogin(token)
-          this.$router.push('/')
+
+          this.$router.push(this.$route.query.intended || '/')
         } else {
           const metadataRef = firebase
             .database()
@@ -160,7 +155,7 @@ export default {
               hasuraClaim['x-hasura-default-role']
             )
             this.$apolloHelpers.onLogin(token)
-            this.$router.push('/')
+            this.$router.push(this.$route.query.intended || '/')
           })
         }
       } else {
@@ -172,6 +167,11 @@ export default {
     logout() {
       firebase.auth().signOut()
       this.$router.push('/login')
+    }
+  },
+  head() {
+    return {
+      title: this.title
     }
   }
 }

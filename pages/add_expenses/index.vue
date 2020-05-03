@@ -16,31 +16,31 @@
                   <shop-input
                     ref="shopInput"
                     v-model="shop"
-                    @enter="addShop"
                     v-validate="'required'"
                     :error-messages="errors.collect('shop')"
+                    @enter="addShop"
                   />
                 </v-col>
               </v-row>
             </v-container>
           </v-form>
           <expense-input
-            ref="stagingItems"
             v-for="(item, index) in stagingItems"
-            v-model="stagingItems[index]"
+            ref="stagingItems"
             :key="item.uuid"
+            v-model="stagingItems[index]"
             :delete-disabled="index === 0"
             :shop="shop"
+            class="pl-5"
             @remove="removeItem(index)"
             @end="onEnd(index)"
-            class="pl-5"
           />
 
           <v-form>
             <v-container>
               <v-layout>
                 <v-flex class="d-flex">
-                  <v-btn @click="addNewStagingItem" color="primary" small fab>
+                  <v-btn color="primary" small fab @click="addNewStagingItem">
                     <v-icon>add</v-icon>
                   </v-btn>
                   <div class="ml-auto">
@@ -56,7 +56,7 @@
             <v-container>
               <v-layout>
                 <v-flex lg2 offset-lg10 class="text-lg-right text-xs-center">
-                  <v-btn @click="commit" color="primary">Potrdi </v-btn>
+                  <v-btn color="primary" @click="commit">Potrdi </v-btn>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -64,19 +64,15 @@
         </v-card-text>
       </v-card>
       <v-card>
-        <v-toolbar color="accent">
-          <v-toolbar-title class="headline">Zadnji stroški</v-toolbar-title>
-        </v-toolbar>
-        <v-card-text>
-          <recent-expense
-            v-for="(item, index) in recentExpenses"
-            :key="index"
-            :data-item="item"
-            @remove="removeRecentItem"
-            @update="updateRecentItem"
-          />
-        </v-card-text>
-        <v-card-actions> </v-card-actions>
+        <v-card-title>Zadnjih 10 računov</v-card-title>
+        <invoices-table
+          ref="recentInvoices"
+          :order-by="{ created_at: 'desc' }"
+          disable-sort
+          :limit="10"
+          :items-per-page="10"
+          hide-default-footer
+        />
       </v-card>
     </v-flex>
   </v-layout>
@@ -85,12 +81,12 @@
 <script>
 import ExpenseInput from '@/components/ExpenseInput.vue'
 import DateInput from '@/components/DateInput.vue'
-import RecentExpense from '@/components/RecentExpense.vue'
 import ShopInput from '@/components/ShopInput.vue'
-import API from '@/api/api'
-import invoiceItemsQueries from '@/api/queries/invoice_items'
-import invoiceQueries from '@/api/queries/invoices'
 import { v4 as uuid } from 'uuid'
+import InvoicesTable from '@/components/InvoicesTable'
+import Shops from '@/queries/Shops'
+import keyBy from 'lodash/keyBy'
+import gql from 'graphql-tag'
 
 export default {
   $_veeValidate: {
@@ -100,16 +96,23 @@ export default {
   components: {
     ExpenseInput,
     DateInput,
-    RecentExpense,
-    ShopInput
+    ShopInput,
+    InvoicesTable
+  },
+
+  apollo: {
+    shops: {
+      query: Shops,
+      update: data => keyBy(data.shops, 'name')
+    }
   },
 
   data() {
     return {
       stagingItems: [this.defaultNewItem()],
-      recentExpenses: [],
       date: this.today(),
-      shop: null
+      shop: null,
+      shops: {}
     }
   },
 
@@ -125,67 +128,7 @@ export default {
     }
   },
 
-  watch: {
-    stagingItems: {
-      deep: true,
-      handler: function(stagingItems) {
-        if (process.browser) {
-          localStorage.setItem(
-            'add_expenses',
-            JSON.stringify({
-              stagingItems: stagingItems,
-              shop: this.shop
-            })
-          )
-        }
-      }
-    },
-    shop: {
-      handler: function(shop) {
-        if (process.browser) {
-          localStorage.setItem(
-            'add_expenses',
-            JSON.stringify({
-              stagingItems: this.stagingItems,
-              shop: shop
-            })
-          )
-        }
-      }
-    }
-  },
-
-  created() {
-    // this.initialize()
-    this.fetchRecentExpenses()
-  },
-
   methods: {
-    initialize() {
-      let saved = null
-      if (process.browser) {
-        saved = localStorage.getItem('add_expenses')
-      }
-
-      if (saved) {
-        try {
-          saved = JSON.parse(saved)
-          this.shop = saved.shop
-          this.stagingItems = saved.stagingItems || [this.defaultNewItem()]
-        } catch {
-          this.reset()
-        }
-      }
-    },
-
-    fetchRecentExpenses() {
-      return API.query(invoiceItemsQueries.recent(10), this.$store).then(
-        response => {
-          this.recentExpenses = response.invoice_items
-        }
-      )
-    },
-
     removeItem(index) {
       this.stagingItems.splice(index, 1)
     },
@@ -194,32 +137,84 @@ export default {
       const valid = await this.$validator.validateAll()
 
       if (valid) {
-        const shop = await this.$store.dispatch(
-          'shops/firstOrCreate',
-          this.shop
-        )
+        try {
+          const shop =
+            this.shops[this.shop] || (await this.createNewShop(this.shop))
 
-        const invoice = await this.createNewInvoice({
-          date: this.date,
-          shop_id: shop.id
-        })
+          const invoice = await this.createNewInvoice({
+            date: this.date,
+            shopId: shop.id
+          })
 
-        await this.commitItems(invoice.id)
+          const invoiceItems = await this.commitItems(invoice.id)
+          console.log(invoiceItems)
 
-        this.fetchRecentExpenses()
+          this.reset()
 
-        this.reset()
+          this.$validator.reset()
 
-        this.$validator.reset()
+          this.$refs.recentInvoices.refresh()
+          this.$store.dispatch('snackbar/success', 'Račun dodan')
+        } catch (e) {
+          console.error(e)
+          this.$store.dispatch('snackbar/error', e.message)
+        }
       }
     },
 
-    async createNewInvoice(invoice) {
-      const response = await API.query(
-        invoiceQueries.create(invoice),
-        this.$store
-      )
-      return response.insert_invoices.returning[0]
+    createNewInvoice({ date, shopId }) {
+      return this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation AddInvoice($date: date, $shop_id: Int) {
+              insert_invoices_one(object: { date: $date, shop_id: $shop_id }) {
+                id
+                date
+                shop_id
+              }
+            }
+          `,
+          variables: {
+            date,
+            shop_id: shopId
+          }
+        })
+        .then(response => {
+          return response.data.insert_invoices_one
+        })
+    },
+
+    createNewInvoiceItems(invoiceItems) {
+      return this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation InsertInvoiceItems(
+              $invoice_items: [invoice_items_insert_input!]!
+            ) {
+              insert_invoice_items(objects: $invoice_items) {
+                affected_rows
+              }
+            }
+          `,
+          variables: {
+            invoice_items: invoiceItems
+          }
+        })
+        .then(response => {
+          return response.data.insert_invoice_items
+        })
+    },
+
+    // Beacuse there is a bug in Hasura preventing inserting more than 1 row to a
+    // table with generated columns this functions serves as a workaround untill
+    // the bug is fixed
+    createNewInvoiceItemsWorkaround(invoiceItems) {
+      const newInvoiceItems = []
+      for (const invoiceItem of invoiceItems) {
+        const newInvoiceItem = this.createNewInvoiceItems([invoiceItem])
+        newInvoiceItems.push(newInvoiceItem)
+      }
+      return newInvoiceItems
     },
 
     commitItems(invoiceId) {
@@ -228,15 +223,12 @@ export default {
           quantity: this.toNumber(item.quantity),
           name: item.name,
           category_id: item.category_id,
-          cost: this.toNumber(item.cost),
+          cost: this.toNumber(item.cost) - this.toNumber(item.discount),
           invoice_id: invoiceId
         }
       })
 
-      return API.query(
-        invoiceItemsQueries.createMany(itemsToInsert),
-        this.$store
-      )
+      return this.createNewInvoiceItemsWorkaround(itemsToInsert)
     },
 
     today() {
@@ -254,15 +246,6 @@ export default {
       }
     },
 
-    async removeRecentItem(id) {
-      await API.query(invoiceItemsQueries.delete(id), this.$store)
-      const index = this.recentExpenses.findIndex(item => item.id === id)
-      this.recentExpenses.splice(index, 1)
-    },
-    async updateRecentItem(item) {
-      await API.query(invoiceItemsQueries.update(item.id, item), this.$store)
-      this.fetchRecentExpenses()
-    },
     addNewStagingItem() {
       this.stagingItems.push(this.defaultNewItem())
       this.$nextTick(() => {
@@ -290,6 +273,31 @@ export default {
       this.stagingItems = [this.defaultNewItem()]
       this.shop = null
       this.date = this.today()
+    },
+
+    createNewShop(name) {
+      return this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation AddShop($name: String) {
+              insert_shops_one(object: { name: $name }) {
+                name
+                id
+              }
+            }
+          `,
+          variables: {
+            name: name
+          },
+          update: (store, { data }) => {
+            const cached = store.readQuery({ query: Shops })
+            cached.shops.push(data.insert_shops_one)
+            store.writeQuery({ query: Shops, data: cached })
+          }
+        })
+        .then(response => {
+          return response.data.insert_shops_one
+        })
     }
   }
 }

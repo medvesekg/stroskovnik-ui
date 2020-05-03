@@ -12,15 +12,15 @@
             :name="inputName('name')"
             :disabled="mode === 'view'"
             :search-input.sync="search"
+            data-vv-as="Ime artikla"
+            data-lpignore="true"
+            label="Ime artikla"
+            auto-select-first
             @enter="changeFocus('nameInput', 'categoryInput')"
             @input="
               selectProduct($event)
               $emit('input', item)
             "
-            data-vv-as="Ime artikla"
-            data-lpignore="true"
-            label="Ime artikla"
-            auto-select-first
           />
         </v-flex>
         <v-flex xl2 md2 xs6>
@@ -32,14 +32,15 @@
             :error-messages="errors.collect(inputName('category'))"
             :name="inputName('category')"
             :disabled="mode === 'view'"
-            @keydown.enter="changeFocus('categoryInput', 'costInput')"
-            @input="$emit('input', item)"
             item-text="name"
             item-value="id"
             data-vv-as="Kategorija"
             label="Kategorija"
             no-data="Izberite kategorijo"
             data-lpignore="true"
+            clearable
+            @keydown.enter="changeFocus('categoryInput', 'costInput')"
+            @input="$emit('input', item)"
           >
           </v-autocomplete>
         </v-flex>
@@ -52,12 +53,12 @@
             :error-messages="errors.collect(inputName('cost'))"
             :name="inputName('cost')"
             :disabled="mode === 'view'"
-            @keydown.enter="onCostEnter"
-            @input="$emit('input', item)"
             label="Cena"
             data-vv-as="Cena"
             prefix="€"
             data-lpignore="true"
+            @keydown.enter="onCostEnter"
+            @input="$emit('input', item)"
           />
         </v-flex>
         <v-flex xl1 md1 xs6>
@@ -67,13 +68,13 @@
             :error-messages="errors.collect(inputName('discount'))"
             :name="inputName('discount')"
             :disabled="mode === 'view'"
-            @keydown.enter="onDiscountEnter"
-            @input="$emit('input', item)"
             type="text"
             label="Popust"
             data-vv-as="Popust"
             prefix="€"
             data-lpignore="true"
+            @keydown.enter="onDiscountEnter"
+            @input="$emit('input', item)"
           />
         </v-flex>
         <v-flex xl1 md1 xs6>
@@ -84,11 +85,11 @@
             :error-messages="errors.collect(inputName('quantity'))"
             :name="inputName('quantity')"
             :disabled="mode === 'view'"
-            @keydown.enter="$emit('end')"
-            @input="$emit('input', item)"
             data-vv-as="Količina"
             label="Količina"
             data-lpignore="true"
+            @keydown.enter="$emit('end')"
+            @input="$emit('input', item)"
           />
         </v-flex>
 
@@ -104,19 +105,19 @@
         <v-flex xl1 md1 xs12 text-xs-center>
           <v-btn
             v-if="isDeletable"
-            @click="$emit('remove')"
             color="error"
             small
             fab
+            @click="$emit('remove')"
           >
             <v-icon>delete</v-icon>
           </v-btn>
           <v-btn
             v-if="mode === 'view'"
-            @click="mode = 'edit'"
             color="warning"
             small
             fab
+            @click="mode = 'edit'"
           >
             <v-icon>edit</v-icon>
           </v-btn>
@@ -126,15 +127,49 @@
   </v-form>
 </template>
 <script>
-import API from '@/api/api'
-import invoiceItemQueries from '@/api/queries/invoice_items'
 import AppCombobox from '@/components/AppCombobox'
 import debounce from 'lodash/debounce'
+import Categories from '@/queries/Categories'
+import gql from 'graphql-tag'
 
 export default {
   inject: ['$validator'],
 
   components: { AppCombobox },
+
+  apollo: {
+    categories: {
+      query: Categories
+    },
+
+    products: {
+      query: gql`
+        query SearchProducts($search: String, $shop_name: String) {
+          invoice_items(
+            limit: 5
+            where: {
+              name: { _ilike: $search }
+              invoice: { shop: { name: { _eq: $shop_name } } }
+            }
+          ) {
+            name
+            category_id
+          }
+        }
+      `,
+      variables() {
+        return {
+          shop_name: this.shop,
+          search: `%${this.search}%`
+        }
+      },
+      debounce: 300,
+      skip() {
+        return !this.shop
+      },
+      update: data => data.invoice_items
+    }
+  },
 
   props: {
     value: {
@@ -164,16 +199,14 @@ export default {
       datePicker: false,
       search: null,
       products: [],
-      item: Object.assign({}, this.value)
+      item: Object.assign({}, this.value),
+      categories: []
     }
   },
 
   computed: {
     isDeletable() {
       return !this.deleteDisabled
-    },
-    categories() {
-      return this.$store.state.categories.all
     },
     total() {
       const quantity = this.toNumber(this.item.quantity)
@@ -195,16 +228,6 @@ export default {
   },
 
   watch: {
-    search: {
-      handler: debounce(function(q) {
-        if (!q) return
-        API.query(invoiceItemQueries.search(q, this.shop), this.$store).then(
-          response => {
-            this.products = response.invoice_items
-          }
-        )
-      }, 200)
-    },
     value: {
       deep: true,
       handler: function(item) {
@@ -214,8 +237,6 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('categories/getCategories')
-
     if (this.autofocus) this.focus()
   },
 
@@ -238,29 +259,20 @@ export default {
     inputName(name) {
       return name + this.$vnode.key
     },
-    selectProduct(name) {
+    async selectProduct(name) {
       const product = this.products.find(product => product.name === name)
 
       if (!product) return
       if (!this.item.category_id) {
         this.item.category_id = product.category_id
-        this.$emit('input', this.item)
-      }
-      if (!this.item.subcategory_id) {
-        this.item.subcategory_id = product.subcategory_id
-        this.$emit('input', this.item)
       }
       if (!this.item.cost && this.shop) {
-        API.query(
-          invoiceItemQueries.lastCost(name, this.shop),
-          this.$store
-        ).then(response => {
-          if (response.invoice_items.length) {
-            this.item.cost = response.invoice_items[0].cost
-            this.$emit('input', this.item)
-          }
-        })
+        const lastCost = await this.getLastCost(name, this.shop)
+        if (lastCost !== null) {
+          this.item.cost = lastCost
+        }
       }
+      this.$emit('input', this.item)
     },
     toNumber(value) {
       if (typeof value === 'string') {
@@ -283,6 +295,36 @@ export default {
         this.$emit('input', this.item)
       }
       this.$refs.quantityInput.$el.querySelector('input').select()
+    },
+    getLastCost(product, shop) {
+      return this.$apollo
+        .query({
+          query: gql`
+            query LastCost($product_name: String, $shop_name: String) {
+              invoice_items(
+                limit: 1
+                order_by: { invoice: { date: desc_nulls_last } }
+                where: {
+                  invoice: { shop: { name: { _eq: $shop_name } } }
+                  name: { _eq: $product_name }
+                }
+              ) {
+                name
+                quantity
+                cost
+              }
+            }
+          `,
+          variables: {
+            product_name: product,
+            shop_name: shop
+          }
+        })
+        .then(response => {
+          return response.data.invoice_items[0]
+            ? response.data.invoice_items[0].cost
+            : null
+        })
     }
   }
 }

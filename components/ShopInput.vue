@@ -2,7 +2,6 @@
   <app-combobox
     ref="combobox"
     v-bind="$attrs"
-    v-on="$listeners"
     :items="shops"
     :return-object="false"
     name="shop"
@@ -11,31 +10,32 @@
     label="Trgovina"
     hide-no-data
     auto-select-first
+    v-on="$listeners"
   />
 </template>
 
 <script>
 import AppCombobox from '@/components/AppCombobox'
+import Shops from '@/queries/Shops'
 
 export default {
   components: { AppCombobox },
 
-  computed: {
-    shops() {
-      return this.$store.state.shops.shops
+  apollo: {
+    shops: {
+      query: Shops
     }
   },
 
-  created() {
-    this.getShops()
+  data() {
+    return {
+      shops: []
+    }
   },
 
   methods: {
     blur() {
       this.$refs.combobox.blur()
-    },
-    getShops() {
-      return this.$store.dispatch('shops/getShops')
     }
   }
 }
