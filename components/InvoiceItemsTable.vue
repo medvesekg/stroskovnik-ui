@@ -5,19 +5,20 @@
     :options.sync="options"
     :footer-props="footerProps"
     :server-items-length="invoiceItemsCount"
+    :loading="$apollo.loading"
     v-bind="$attrs"
   >
     <template #top>
       <v-dialog v-model="deleteConfirmation.dialog" max-width="800">
         <v-card v-if="deleteConfirmation.item">
           <v-card-text class="headline text-center"
-            >Are you sure you want to
-            {{ deleteConfirmation.item.name }}?</v-card-text
+            >Res želiš izbrisati postavko
+            <em>{{ deleteConfirmation.item.name }}</em> z računa?</v-card-text
           >
           <v-card-actions>
             <v-spacer />
-            <v-btn color="error" @click="confirmDelete">Delete</v-btn>
-            <v-btn @click="cancelDelete">Close</v-btn>
+            <v-btn color="error" @click="confirmDelete">Izbriši</v-btn>
+            <v-btn @click="cancelDelete">Zapri</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

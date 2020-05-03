@@ -1,18 +1,15 @@
 <template>
   <div>
     <h1 class="text-center">Vsi računi</h1>
-    <graphql-table
-      :fields="['date', 'shop.name', 'totals.sum', 'totals.count']"
-      resource="invoices"
-    />
+    <invoices-table />
   </div>
 </template>
 
 <script>
-import GraphqlTable from '@/components/GraphqlTable'
+import InvoicesTable from '@/components/InvoicesTable'
 
 export default {
-  components: { GraphqlTable }
+  components: { InvoicesTable }
 }
 </script>
 

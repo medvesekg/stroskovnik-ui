@@ -5,6 +5,7 @@
     :options.sync="options"
     :footer-props="footerProps"
     :server-items-length="invoicesCount"
+    :loading="$apollo.loading"
     show-expand
     v-bind="$attrs"
   >
@@ -12,21 +13,21 @@
       <v-dialog v-model="deleteConfirmation.dialog" max-width="800">
         <v-card v-if="deleteConfirmation.invoice">
           <v-card-text class="headline text-center"
-            >Are you sure you want to delete this
+            >Res želiš izbrisati ta
             {{
               shops[deleteConfirmation.invoice.shop_id]
                 ? shops[deleteConfirmation.invoice.shop_id].name
                 : ''
             }}
-            invoice from
-            {{ userDateFormat(deleteConfirmation.invoice.date) }} and its
+            račun z dne
+            {{ userDateFormat(deleteConfirmation.invoice.date) }} skupaj s
             {{ deleteConfirmation.invoice.items.length || 0 }}
-            items?</v-card-text
+            postavkami?</v-card-text
           >
           <v-card-actions>
             <v-spacer />
-            <v-btn color="error" @click="confirmDelete">Delete</v-btn>
-            <v-btn @click="cancelDelete">Close</v-btn>
+            <v-btn color="error" @click="confirmDelete">Izbriši</v-btn>
+            <v-btn @click="cancelDelete">Zapri</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -50,7 +51,7 @@
       ></inline-edit>
       <span v-else>{{ userDateFormat(invoice.date) }}</span>
     </template>
-    <template #item.shop="{ item: invoice }">
+    <template #item.shop.name="{ item: invoice }">
       <inline-edit
         v-if="editing[invoice.id]"
         v-model="editing[invoice.id].shop_id"
@@ -63,7 +64,7 @@
         {{ shops[invoice.shop_id] ? shops[invoice.shop_id].name : 'Unknown' }}
       </span>
     </template>
-    <template #item.sum="{item: invoice}">
+    <template #item.totals.sum="{item: invoice}">
       {{ invoice.totals ? userCurrencyFormat(invoice.totals.sum) : null }}
     </template>
     <template #item.created_at="{item: invoice}">
@@ -120,6 +121,7 @@ import { userCurrencyFormat } from '@/format/currency'
 import { relativeToNow, userDateTimeFormat } from '@/format/datetime'
 import Shops from '@/queries/Shops'
 import keyBy from 'lodash/keyBy'
+import set from 'lodash/set'
 import InvoiceItemsTable from '@/components/InvoiceItemsTable'
 import InlineEdit from '@/components/InlineEdit'
 
@@ -144,19 +146,19 @@ export default {
   apollo: {
     invoices: {
       query: gql`
-        query Invoices($limit: Int, $offset: Int) {
-          invoices(
-            limit: $limit
-            offset: $offset
-            order_by: { created_at: desc }
-          ) {
+        query Invoices(
+          $limit: Int
+          $offset: Int
+          $orderBy: invoices_order_by!
+        ) {
+          invoices(limit: $limit, offset: $offset, order_by: [$orderBy]) {
             id
             shop_id
             date
             totals {
               sum
             }
-            items {
+            items(order_by: { id: asc }) {
               id
               category_id
               name
@@ -171,7 +173,8 @@ export default {
       variables() {
         return {
           limit: this.options.itemsPerPage,
-          offset: (this.options.page - 1) * this.options.itemsPerPage
+          offset: (this.options.page - 1) * this.options.itemsPerPage,
+          orderBy: this.orderByClause
         }
       }
     },
@@ -201,11 +204,11 @@ export default {
         },
         {
           text: 'Trgovina',
-          value: 'shop'
+          value: 'shop.name'
         },
         {
           text: 'Vsota',
-          value: 'sum'
+          value: 'totals.sum'
         },
         {
           text: 'Ustvarjeno',
@@ -213,7 +216,8 @@ export default {
         },
         {
           text: 'Akcije',
-          value: 'actions'
+          value: 'actions',
+          orderable: false
         }
       ],
       options: {
@@ -223,8 +227,10 @@ export default {
         multiSort: false,
         mustSort: false,
         page: 1,
-        sortBy: [],
-        sortDesc: []
+        sortBy: Object.keys(this.orderBy),
+        sortDesc: Object.values(this.orderBy).map(order =>
+          order.includes('desc')
+        )
       },
       footerProps: {
         itemsPerPageOptions: [10, 20, 50]
@@ -241,6 +247,16 @@ export default {
   computed: {
     rows() {
       return this.invoices
+    },
+    orderByClause() {
+      return this.options.sortBy.reduce((clause, column, index) => {
+        set(
+          clause,
+          column,
+          this.options.sortDesc[index] ? 'desc_nulls_last' : 'asc_nulls_last'
+        )
+        return clause
+      }, {})
     }
   },
 
