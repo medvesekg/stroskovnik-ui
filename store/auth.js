@@ -1,6 +1,7 @@
 export const state = () => ({
   token: null,
   user: {
+    id: null,
     email: null
   },
   role: null
@@ -13,8 +14,9 @@ export const mutations = {
   RESET_TOKEN(state) {
     state.token = null
   },
-  SET_USER(state, { email }) {
+  SET_USER(state, { email, uid }) {
     state.user.email = email
+    state.user.id = uid
   },
   RESET_USER(state) {
     state.user.email = null
@@ -23,7 +25,7 @@ export const mutations = {
     state.role = role
   },
   RESET_ROLE(state) {
-    state.user.role = null
+    state.role = null
   }
 }
 

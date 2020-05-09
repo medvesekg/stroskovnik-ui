@@ -61,7 +61,8 @@ export default {
     // See https://github.com/nuxt-community/apollo-module
     clientConfigs: {
       default: {
-        httpEndpoint: process.env.NUXT_ENV_GRAPHQL_ENDPOINT
+        httpEndpoint: process.env.NUXT_ENV_GRAPHQL_ENDPOINT,
+        wsEndpoint: process.env.NUXT_ENV_GRAPHQL_WSS_ENDPOINT
       }
     }
   },

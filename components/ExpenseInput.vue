@@ -267,9 +267,12 @@ export default {
         this.item.category_id = product.category_id
       }
       if (!this.item.cost && this.shop) {
-        const lastCost = await this.getLastCost(name, this.shop)
-        if (lastCost !== null) {
-          this.item.cost = lastCost
+        const lastData = await this.getLastData(name, this.shop)
+        if (lastData.cost !== null) {
+          this.item.cost = lastData.cost
+        }
+        if (lastData.category_id) {
+          this.item.category_id = lastData.category_id
         }
       }
       this.$emit('input', this.item)
@@ -296,11 +299,11 @@ export default {
       }
       this.$refs.quantityInput.$el.querySelector('input').select()
     },
-    getLastCost(product, shop) {
+    getLastData(product, shop) {
       return this.$apollo
         .query({
           query: gql`
-            query LastCost($product_name: String, $shop_name: String) {
+            query LastData($product_name: String, $shop_name: String) {
               invoice_items(
                 limit: 1
                 order_by: { invoice: { date: desc_nulls_last } }
@@ -310,6 +313,7 @@ export default {
                 }
               ) {
                 name
+                category_id
                 quantity
                 cost
               }
@@ -322,8 +326,6 @@ export default {
         })
         .then(response => {
           return response.data.invoice_items[0]
-            ? response.data.invoice_items[0].cost
-            : null
         })
     }
   }

@@ -9,10 +9,10 @@
           <v-form>
             <v-container fluid pa-0>
               <v-row>
-                <v-col xs="6" md="3">
+                <v-col cols="4" md="3">
                   <date-input v-model="date" label="Datum računa" />
                 </v-col>
-                <v-col xs="6" md="3">
+                <v-col cols="4" md="3">
                   <shop-input
                     ref="shopInput"
                     v-model="shop"
@@ -20,6 +20,39 @@
                     :error-messages="errors.collect('shop')"
                     @enter="addShop"
                   />
+                </v-col>
+                <v-spacer />
+                <v-col cols="4" md="3" class="text-right">
+                  <input
+                    ref="uploadPhotoInput"
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    @input="uploadPhoto"
+                  />
+
+                  <v-btn
+                    :loading="photoUploading"
+                    :color="photo ? 'success' : 'default'"
+                    @click="$refs.uploadPhotoInput.click()"
+                  >
+                    <v-icon>add_a_photo</v-icon>
+                  </v-btn>
+
+                  <v-btn
+                    v-if="photo"
+                    color="error"
+                    x-small
+                    @click="deletePhoto"
+                  >
+                    <v-icon small>delete</v-icon>
+                  </v-btn>
+                  <a v-if="photo" :href="photo.url" target="_blank">
+                    <v-btn x-small>
+                      <v-icon small>note</v-icon>
+                    </v-btn>
+                  </a>
                 </v-col>
               </v-row>
             </v-container>
@@ -87,6 +120,10 @@ import InvoicesTable from '@/components/InvoicesTable'
 import Shops from '@/queries/Shops'
 import keyBy from 'lodash/keyBy'
 import gql from 'graphql-tag'
+import firebase from 'firebase/app'
+import 'firebase/storage'
+import axios from 'axios'
+import debounce from 'lodash/debounce'
 
 export default {
   $_veeValidate: {
@@ -104,6 +141,63 @@ export default {
     shops: {
       query: Shops,
       update: data => keyBy(data.shops, 'name')
+    },
+    userSettings: {
+      query: gql`
+        query UserSettings($user_id: String!, $type: String!) {
+          user_settings_by_pk(user_id: $user_id, type: $type) {
+            data
+            type
+            user_id
+          }
+        }
+      `,
+      subscribeToMore: {
+        document: gql`
+          subscription UserSettingSubscription(
+            $user_id: String!
+            $type: String!
+          ) {
+            user_settings_by_pk(type: $type, user_id: $user_id) {
+              data
+              type
+              user_id
+            }
+          }
+        `,
+        variables() {
+          return {
+            user_id: this.$store.state.auth.user.id,
+            type: 'add_expenses_form'
+          }
+        },
+        updateQuery: (previousResult, { subscriptionData: { data } }) => {
+          return data
+          // console.log(previousResult, subscriptionData)
+        }
+      },
+      variables() {
+        return {
+          user_id: this.$store.state.auth.user.id,
+          type: 'add_expenses_form'
+        }
+      },
+      update(data) {
+        const savedSettings = data.user_settings_by_pk.data
+
+        if (savedSettings.date) {
+          this.date = savedSettings.date
+        }
+        if (savedSettings.photo) {
+          this.photo = savedSettings.photo
+        }
+        if (savedSettings.shop) {
+          this.shop = savedSettings.shop
+        }
+        if (savedSettings.stagingItems && savedSettings.stagingItems.length) {
+          this.stagingItems = savedSettings.stagingItems
+        }
+      }
     }
   },
 
@@ -112,7 +206,10 @@ export default {
       stagingItems: [this.defaultNewItem()],
       date: this.today(),
       shop: null,
-      shops: {}
+      photo: null,
+      shops: {},
+      userSettings: {},
+      photoUploading: false
     }
   },
 
@@ -125,6 +222,30 @@ export default {
             this.toNumber(item.quantity),
         0
       )
+    }
+  },
+
+  watch: {
+    stagingItems: {
+      deep: true,
+      handler: function() {
+        this.saveState()
+      }
+    },
+    date: {
+      handler: function() {
+        this.saveState()
+      }
+    },
+    photo: {
+      handler: function() {
+        this.saveState()
+      }
+    },
+    shop: {
+      handler: function() {
+        this.saveState()
+      }
     }
   },
 
@@ -146,8 +267,11 @@ export default {
             shopId: shop.id
           })
 
+          if (this.photo) {
+            const photoUrl = await this.commitPhoto(invoice.id)
+            await this.updateInvoice({ file: photoUrl, id: invoice.id })
+          }
           const invoiceItems = await this.commitItems(invoice.id)
-          console.log(invoiceItems)
 
           this.reset()
 
@@ -182,6 +306,28 @@ export default {
         .then(response => {
           return response.data.insert_invoices_one
         })
+    },
+
+    updateInvoice({ file, id }) {
+      return this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateInvoice($file: String, $invoice_id: Int!) {
+            update_invoices_by_pk(
+              pk_columns: { id: $invoice_id }
+              _set: { file: $file }
+            ) {
+              id
+              date
+              file
+              shop_id
+            }
+          }
+        `,
+        variables: {
+          file,
+          invoice_id: id
+        }
+      })
     },
 
     createNewInvoiceItems(invoiceItems) {
@@ -273,6 +419,7 @@ export default {
       this.stagingItems = [this.defaultNewItem()]
       this.shop = null
       this.date = this.today()
+      this.photo = null
     },
 
     createNewShop(name) {
@@ -298,7 +445,101 @@ export default {
         .then(response => {
           return response.data.insert_shops_one
         })
-    }
+    },
+
+    uploadPhoto() {
+      this.photoUploading = true
+      const input = this.$refs.uploadPhotoInput
+      const file = input.files[0]
+      if (file) {
+        const fileNameComponents = file.name.split('.')
+        const extension = fileNameComponents[fileNameComponents.length - 1]
+        const firebaseFileName = `${uuid()}.${extension}`
+        const folderRef = firebase
+          .storage()
+          .ref()
+          .child('temp')
+        const fileRef = folderRef.child(firebaseFileName)
+
+        fileRef.put(file).then(snapshot => {
+          snapshot.ref.getDownloadURL().then(url => {
+            this.photoUploading = false
+            this.photo = {
+              url: url,
+              path: snapshot.ref.fullPath
+            }
+          })
+        })
+      }
+    },
+    deletePhoto() {
+      this.photoUploading = true
+      firebase
+        .storage()
+        .ref()
+        .child(this.photo.path)
+        .delete()
+        .then(() => {
+          this.photo = null
+          this.photoUploading = false
+        })
+    },
+    async commitPhoto(invoiceId) {
+      const oldRef = firebase
+        .storage()
+        .ref()
+        .child(this.photo.path)
+      const oldRefDownloadUrl = await oldRef.getDownloadURL()
+      const oldRefMetadata = await oldRef.getMetadata()
+
+      const response = await axios.get(oldRefDownloadUrl, {
+        responseType: 'blob'
+      })
+      const file = new File([response.data], oldRef.name)
+      const newRef = firebase
+        .storage()
+        .ref()
+        .child(`invoices/${invoiceId}/${oldRef.name}`)
+      newRef.put(file, { contentType: oldRefMetadata.contentType })
+      return newRef.fullPath
+    },
+
+    saveState: debounce(function() {
+      const state = {
+        shop: this.shop,
+        stagingItems: this.stagingItems,
+        photo: this.photo,
+        date: this.date
+      }
+      this.$apollo.mutate({
+        mutation: gql`
+          mutation UpsertUserSettings(
+            $data: jsonb
+            $type: String
+            $user_id: String
+          ) {
+            insert_user_settings_one(
+              object: { data: $data, type: $type, user_id: $user_id }
+              on_conflict: {
+                constraint: user_settings_pkey
+                update_columns: data
+              }
+            ) {
+              data
+              type
+              user_id
+            }
+          }
+        `,
+        variables: {
+          data: state,
+          type: 'add_expenses_form',
+          user_id: this.$store.state.auth.user.id
+        }
+      })
+    }, 500),
+
+    liveUpdate(data) {}
   }
 }
 </script>

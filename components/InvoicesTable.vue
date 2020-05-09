@@ -72,6 +72,11 @@
         {{ relativeToNow(invoice.created_at) }}
       </span>
     </template>
+    <template #item.file="{item: invoice}">
+      <v-btn v-if="invoice.file" @click="download(invoice.file)">
+        <v-icon>note</v-icon>
+      </v-btn>
+    </template>
     <template #item.actions="{item: invoice}">
       <template v-if="!editing[invoice.id]">
         <v-btn x-small rounded color="primary" @click="startEdit(invoice)">
@@ -124,6 +129,9 @@ import keyBy from 'lodash/keyBy'
 import set from 'lodash/set'
 import InvoiceItemsTable from '@/components/InvoiceItemsTable'
 import InlineEdit from '@/components/InlineEdit'
+import firebase from 'firebase/app'
+import 'firebase/storage'
+import axios from 'axios'
 
 export default {
   components: { InvoiceItemsTable, InlineEdit },
@@ -155,6 +163,7 @@ export default {
             id
             shop_id
             date
+            file
             totals {
               sum
             }
@@ -213,6 +222,10 @@ export default {
         {
           text: 'Ustvarjeno',
           value: 'created_at'
+        },
+        {
+          text: 'Datoteka',
+          value: 'file'
         },
         {
           text: 'Akcije',
@@ -349,6 +362,21 @@ export default {
       }
       this.$apollo.queries.invoices.refetch()
       this.$apollo.queries.invoicesCount.refetch()
+    },
+    download(path) {
+      firebase
+        .storage()
+        .ref()
+        .child(path)
+        .getDownloadURL()
+        .then(url => {
+          console.log(url)
+          const a = document.createElement('a')
+          a.href = url
+          a.target = '_blank'
+          document.body.append(a)
+          a.click()
+        })
     }
   }
 }
