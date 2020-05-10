@@ -23,36 +23,7 @@
                 </v-col>
                 <v-spacer />
                 <v-col cols="4" md="3" class="text-right">
-                  <input
-                    ref="uploadPhotoInput"
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    hidden
-                    @input="uploadPhoto"
-                  />
-
-                  <v-btn
-                    :loading="photoUploading"
-                    :color="photo ? 'success' : 'default'"
-                    @click="$refs.uploadPhotoInput.click()"
-                  >
-                    <v-icon>add_a_photo</v-icon>
-                  </v-btn>
-
-                  <v-btn
-                    v-if="photo"
-                    color="error"
-                    x-small
-                    @click="deletePhoto"
-                  >
-                    <v-icon small>delete</v-icon>
-                  </v-btn>
-                  <a v-if="photo" :href="photo.url" target="_blank">
-                    <v-btn x-small>
-                      <v-icon small>note</v-icon>
-                    </v-btn>
-                  </a>
+                  <photo-input v-model="photo" />
                 </v-col>
               </v-row>
             </v-container>
@@ -88,7 +59,10 @@
           <v-form>
             <v-container>
               <v-layout>
-                <v-flex lg2 offset-lg10 class="text-lg-right text-xs-center">
+                <v-flex lg4 offset-lg8 class="text-lg-right text-xs-center">
+                  <v-btn class="mr-2" color="default" @click="reset"
+                    >Ponastavi</v-btn
+                  >
                   <v-btn color="primary" @click="commit">Potrdi </v-btn>
                 </v-flex>
               </v-layout>
@@ -115,6 +89,7 @@
 import ExpenseInput from '@/components/ExpenseInput.vue'
 import DateInput from '@/components/DateInput.vue'
 import ShopInput from '@/components/ShopInput.vue'
+import PhotoInput from '@/components/PhotoInput'
 import { v4 as uuid } from 'uuid'
 import InvoicesTable from '@/components/InvoicesTable'
 import Shops from '@/queries/Shops'
@@ -134,6 +109,7 @@ export default {
     ExpenseInput,
     DateInput,
     ShopInput,
+    PhotoInput,
     InvoicesTable
   },
 
@@ -208,8 +184,7 @@ export default {
       shop: null,
       photo: null,
       shops: {},
-      userSettings: {},
-      photoUploading: false
+      userSettings: {}
     }
   },
 
@@ -447,43 +422,6 @@ export default {
         })
     },
 
-    uploadPhoto() {
-      this.photoUploading = true
-      const input = this.$refs.uploadPhotoInput
-      const file = input.files[0]
-      if (file) {
-        const fileNameComponents = file.name.split('.')
-        const extension = fileNameComponents[fileNameComponents.length - 1]
-        const firebaseFileName = `${uuid()}.${extension}`
-        const folderRef = firebase
-          .storage()
-          .ref()
-          .child('temp')
-        const fileRef = folderRef.child(firebaseFileName)
-
-        fileRef.put(file).then(snapshot => {
-          snapshot.ref.getDownloadURL().then(url => {
-            this.photoUploading = false
-            this.photo = {
-              url: url,
-              path: snapshot.ref.fullPath
-            }
-          })
-        })
-      }
-    },
-    deletePhoto() {
-      this.photoUploading = true
-      firebase
-        .storage()
-        .ref()
-        .child(this.photo.path)
-        .delete()
-        .then(() => {
-          this.photo = null
-          this.photoUploading = false
-        })
-    },
     async commitPhoto(invoiceId) {
       const oldRef = firebase
         .storage()
