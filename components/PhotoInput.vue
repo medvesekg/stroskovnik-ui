@@ -6,7 +6,7 @@
       accept="image/*"
       capture="environment"
       hidden
-      @input="upload"
+      @change="upload"
     />
     <v-menu v-if="value" offset-y>
       <template #activator="{ on }">
