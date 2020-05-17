@@ -122,6 +122,7 @@ export default {
       query: gql`
         query UserSettings($user_id: String!, $type: String!) {
           user_settings_by_pk(user_id: $user_id, type: $type) {
+            uuid
             data
             type
             user_id
@@ -135,6 +136,7 @@ export default {
             $type: String!
           ) {
             user_settings_by_pk(type: $type, user_id: $user_id) {
+              uuid
               data
               type
               user_id
@@ -161,17 +163,17 @@ export default {
       update(data) {
         const savedSettings = data.user_settings_by_pk.data
 
-        if (savedSettings.date) {
-          this.date = savedSettings.date
-        }
-        if (savedSettings.photo) {
+        if (data.user_settings_by_pk.uuid !== this.$store.state.session.id) {
+          if (savedSettings.date) {
+            this.date = savedSettings.date
+          }
           this.photo = savedSettings.photo
-        }
-        if (savedSettings.shop) {
+
           this.shop = savedSettings.shop
-        }
-        if (savedSettings.stagingItems && savedSettings.stagingItems.length) {
-          this.stagingItems = savedSettings.stagingItems
+
+          if (savedSettings.stagingItems && savedSettings.stagingItems.length) {
+            this.stagingItems = savedSettings.stagingItems
+          }
         }
       }
     }
@@ -438,7 +440,7 @@ export default {
         .storage()
         .ref()
         .child(`invoices/${invoiceId}/${oldRef.name}`)
-      newRef.put(file, { contentType: oldRefMetadata.contentType })
+      await newRef.put(file, { contentType: oldRefMetadata.contentType })
       return newRef.fullPath
     },
 
@@ -455,14 +457,21 @@ export default {
             $data: jsonb
             $type: String
             $user_id: String
+            $uuid: uuid
           ) {
             insert_user_settings_one(
-              object: { data: $data, type: $type, user_id: $user_id }
+              object: {
+                data: $data
+                type: $type
+                user_id: $user_id
+                uuid: $uuid
+              }
               on_conflict: {
                 constraint: user_settings_pkey
-                update_columns: data
+                update_columns: [data, uuid]
               }
             ) {
+              uuid
               data
               type
               user_id
@@ -472,7 +481,8 @@ export default {
         variables: {
           data: state,
           type: 'add_expenses_form',
-          user_id: this.$store.state.auth.user.id
+          user_id: this.$store.state.auth.user.id,
+          uuid: this.$store.state.session.id
         }
       })
     }, 500),
