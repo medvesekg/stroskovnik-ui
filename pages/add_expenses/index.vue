@@ -163,20 +163,25 @@ export default {
         }
       },
       update(data) {
-        const savedSettings = data.user_settings_by_pk.data
+        if (data && data.user_settings_by_pk) {
+          const savedSettings = data.user_settings_by_pk.data
 
-        if (data.user_settings_by_pk.uuid !== this.$store.state.session.id) {
-          if (savedSettings.date) {
-            this.date = savedSettings.date
+          if (data.user_settings_by_pk.uuid !== this.$store.state.session.id) {
+            if (savedSettings.date) {
+              this.date = savedSettings.date
+            }
+            this.photo = savedSettings.photo
+
+            this.shop = savedSettings.shop
+
+            if (
+              savedSettings.stagingItems &&
+              savedSettings.stagingItems.length
+            ) {
+              this.stagingItems = savedSettings.stagingItems
+            }
           }
-          this.photo = savedSettings.photo
-
-          this.shop = savedSettings.shop
-
-          if (savedSettings.stagingItems && savedSettings.stagingItems.length) {
-            this.stagingItems = savedSettings.stagingItems
-          }
-        }
+        } //
       }
     }
   },
