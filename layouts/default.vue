@@ -136,8 +136,6 @@ export default {
             hasuraClaim['x-hasura-default-role']
           )
           this.$apolloHelpers.onLogin(token)
-
-          this.$router.push(this.$route.query.intended || '/')
         } else {
           const metadataRef = firebase
             .database()
@@ -155,7 +153,6 @@ export default {
               hasuraClaim['x-hasura-default-role']
             )
             this.$apolloHelpers.onLogin(token)
-            this.$router.push(this.$route.query.intended || '/')
           })
         }
       } else {
@@ -166,6 +163,7 @@ export default {
   methods: {
     logout() {
       firebase.auth().signOut()
+      this.$apolloHelpers.onLogout()
       this.$router.push('/login')
     }
   },

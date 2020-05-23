@@ -63,7 +63,9 @@
                   <v-btn class="mr-2" color="default" @click="reset"
                     >Ponastavi</v-btn
                   >
-                  <v-btn color="primary" @click="commit">Potrdi </v-btn>
+                  <v-btn color="primary" :loading="loading" @click="commit"
+                    >Potrdi
+                  </v-btn>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -186,7 +188,8 @@ export default {
       shop: null,
       photo: null,
       shops: {},
-      userSettings: {}
+      userSettings: {},
+      loading: false
     }
   },
 
@@ -236,6 +239,7 @@ export default {
 
       if (valid) {
         try {
+          this.loading = true
           const shop =
             this.shops[this.shop] || (await this.createNewShop(this.shop))
 
@@ -259,6 +263,8 @@ export default {
         } catch (e) {
           console.error(e)
           this.$store.dispatch('snackbar/error', e.message)
+        } finally {
+          this.loading = false
         }
       }
     },

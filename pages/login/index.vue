@@ -53,6 +53,7 @@ export default {
         .signInWithPopup(googleProvider)
         .then(event => {
           this.error = ''
+          this.$router.push(this.$route.query.intended || '/')
         })
         .catch(e => {
           this.error = e.message

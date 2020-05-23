@@ -73,9 +73,11 @@
       </span>
     </template>
     <template #item.file="{item: invoice}">
-      <v-btn v-if="invoice.file" small @click="download(invoice.file)">
-        <v-icon small>note</v-icon>
-      </v-btn>
+      <template v-if="!editing[invoice.id]">
+        <v-btn v-if="invoice.file" small @click="download(invoice.file)">
+          <v-icon small>note</v-icon>
+        </v-btn>
+      </template>
     </template>
     <template #item.actions="{item: invoice}">
       <template v-if="!editing[invoice.id]">
