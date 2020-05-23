@@ -2,7 +2,6 @@ import jwtDecode from 'jwt-decode'
 const cookieParser = require('cookie')
 
 export const actions = {
-  /*
   nuxtServerInit({ commit }, { req }) {
     if (req.headers.cookie) {
       const cookie = cookieParser.parse(req.headers.cookie)
@@ -15,5 +14,5 @@ export const actions = {
         commit('auth/SET_USER', decodedToken)
       }
     }
-  } */
+  }
 }
