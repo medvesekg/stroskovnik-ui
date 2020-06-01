@@ -3,6 +3,7 @@ const cookieParser = require('cookie')
 
 export const actions = {
   nuxtServerInit({ commit }, { req, app }) {
+    /*
     if (req.headers.cookie) {
       const cookie = cookieParser.parse(req.headers.cookie)
       const token = cookie ? cookie['apollo-token'] : null
@@ -15,5 +16,6 @@ export const actions = {
         commit('auth/SET_USER', { ...decodedToken, uid: decodedToken.user_id })
       }
     }
+    */
   }
 }
