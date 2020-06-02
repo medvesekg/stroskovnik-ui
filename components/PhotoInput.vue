@@ -1,13 +1,6 @@
 <template>
   <div>
-    <input
-      ref="input"
-      type="file"
-      accept="image/*"
-      capture="environment"
-      hidden
-      @change="upload"
-    />
+    <input ref="input" type="file" accept="image/*" hidden @change="upload" />
     <v-menu v-if="value" offset-y>
       <template #activator="{ on }">
         <v-btn
