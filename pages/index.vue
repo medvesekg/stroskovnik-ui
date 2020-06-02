@@ -93,6 +93,7 @@ import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
 import format from 'date-fns/format'
 import gql from 'graphql-tag'
+import get from 'lodash/get'
 
 export default {
   name: 'PageDashboard',
@@ -120,7 +121,7 @@ export default {
           }
         }
       `,
-      update: data => data.invoices_aggregate.aggregate.min.date
+      update: data => get(data, 'invoices_aggregate.aggregate.min.date')
     },
     maxDateInDb: {
       query: gql`
@@ -134,7 +135,7 @@ export default {
           }
         }
       `,
-      update: data => data.invoices_aggregate.aggregate.max.date
+      update: data => get(data, 'invoices_aggregate.aggregate.max.date')
     }
   },
 
