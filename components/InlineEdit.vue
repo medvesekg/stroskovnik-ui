@@ -13,9 +13,10 @@
 
 <script>
 import DateInput from '@/components/DateInput'
+import { VAutocomplete, VTextField } from 'vuetify/lib'
 
 export default {
-  components: { DateInput },
+  components: { DateInput, VAutocomplete, VTextField },
 
   props: {
     component: {
