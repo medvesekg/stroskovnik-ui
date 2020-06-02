@@ -64,11 +64,15 @@ export default {
         httpEndpoint: process.env.NUXT_ENV_GRAPHQL_ENDPOINT,
         wsEndpoint: process.env.NUXT_ENV_GRAPHQL_WSS_ENDPOINT
       }
+    },
+    cookieAttributes: {
+      sameSite: 'Strict'
     }
   },
 
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
+    treeShake: true,
     theme: {
       dark: true,
       themes: {
