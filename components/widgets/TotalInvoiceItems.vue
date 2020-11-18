@@ -27,6 +27,16 @@ export default {
       type: [Date, String],
       required: false,
       default: null
+    },
+    categoryId: {
+      type: [Number, String],
+      required: false,
+      default: null
+    },
+    shopId: {
+      type: [Number, String],
+      required: false,
+      default: null
     }
   },
 
@@ -36,7 +46,9 @@ export default {
       variables() {
         return {
           from: this.from,
-          to: this.to
+          to: this.to,
+          categoryId: this.categoryId,
+          shopId: this.shopId
         }
       },
       update: data => data.invoice_items_aggregate.aggregate.count

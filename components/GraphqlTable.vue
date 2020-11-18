@@ -49,6 +49,11 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+    filter: {
+      type: Object,
+      required: false,
+      default: () => ({})
     }
   },
 
@@ -61,7 +66,8 @@ export default {
         search: this.debouncedSearch,
         searchFields: this.searchFields,
         limit: this.options.itemsPerPage,
-        offset: (this.options.page - 1) * this.options.itemsPerPage
+        offset: (this.options.page - 1) * this.options.itemsPerPage,
+        filter: this.filter
       })
 
       return this.itemsQuery.toApollo()
@@ -73,6 +79,7 @@ export default {
         fields: ['aggregate.count'],
         search: this.debouncedSearch,
         searchFields: this.searchFields,
+        filter: this.filter,
         aggregate: true
       })
 
@@ -130,7 +137,7 @@ export default {
   watch: {
     'options.search': {
       handler: function(search) {
-        this.updateDebouncedSerach(search)
+        this.updateDebouncedSearch(search)
       }
     },
     'options.page': {
@@ -175,7 +182,7 @@ export default {
   },
 
   methods: {
-    updateDebouncedSerach: debounce(function(search) {
+    updateDebouncedSearch: debounce(function(search) {
       this.debouncedSearch = search
     }, 400),
 

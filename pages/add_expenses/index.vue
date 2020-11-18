@@ -181,7 +181,7 @@ export default {
               this.stagingItems = savedSettings.stagingItems
             }
           }
-        } //
+        }
       }
     }
   },

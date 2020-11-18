@@ -39,11 +39,6 @@ export default {
     }
   },
 
-  created() {
-    // ping the to wake up the heroku dyno if sleeping
-    axios.get(process.env.NUXT_ENV_HASURA_HEALTH_ENDPOINT)
-  },
-
   methods: {
     googleLogin() {
       const googleProvider = new firebase.auth.GoogleAuthProvider()

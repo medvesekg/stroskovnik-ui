@@ -94,6 +94,8 @@ import endOfMonth from 'date-fns/endOfMonth'
 import format from 'date-fns/format'
 import gql from 'graphql-tag'
 import get from 'lodash/get'
+import latestDate from 'date-fns/max'
+import earliestDate from 'date-fns/min'
 
 export default {
   name: 'PageDashboard',
@@ -170,10 +172,16 @@ export default {
       return new Date()
     },
     minDate() {
-      return this.minDateInDb
+      const minDate = this.minDateInDb
+        ? earliestDate([new Date(this.minDateInDb), this.today])
+        : this.today
+      return format(minDate, 'yyyy-MM-dd')
     },
     maxDate() {
-      return this.maxDateInDb
+      const maxDate = this.maxDateInDb
+        ? latestDate([new Date(this.maxDateInDb), this.today])
+        : this.today
+      return format(maxDate, 'yyyy-MM-dd')
     }
   },
 

@@ -113,6 +113,11 @@ export default {
           icon: 'category',
           title: 'Kategorije',
           to: '/categories'
+        },
+        {
+          icon: 'analytics',
+          title: 'Analiza',
+          to: '/analyze'
         }
       ],
       miniVariant: false,
@@ -136,6 +141,9 @@ export default {
             hasuraClaim['x-hasura-default-role']
           )
           this.$apolloHelpers.onLogin(token)
+          if (this.$route.query.intended) {
+            this.$router.push(this.$route.query.intended || '/')
+          }
         } else {
           const metadataRef = firebase
             .database()

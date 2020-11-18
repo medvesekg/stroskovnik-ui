@@ -1,22 +1,7 @@
-# stroskovnik
-
-> My world-class Nuxt.js project
-
-## Build Setup
-
-``` bash
-# install dependencies
-$ npm install
-
-# serve with hot reload at localhost:3000
-$ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm start
-
-# generate static project
-$ npm run generate
-```
-
-For detailed explanation on how things work, checkout [Nuxt.js docs](https://nuxtjs.org).
+# Setup dev database
+- Create backup of production db
+`heroku pg:backups:capture -a stroskovnik-graphql`
+- Get URL of backup
+`heroku pg:backups public-url -a stroskovnik-graphql`
+- Restore dev db with backup of production db
+`heropku pg:backups:restore ${URL} -a stroskovnik-graphql-test`

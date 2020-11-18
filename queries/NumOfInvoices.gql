@@ -1,7 +1,10 @@
-query NumOfInvoices($from : date, $to : date) {
+query NumOfInvoices($from : date, $to : date, $categoryId: Int, $shopId: Int) {
   invoices_aggregate(where: {
       date: {_gte: $from, _lte: $to}, 
-      items: {}
+      shop_id: {_eq: $shopId}
+      items: {
+        category_id: { _eq: $categoryId }
+      }
     }) {
     aggregate {
       count

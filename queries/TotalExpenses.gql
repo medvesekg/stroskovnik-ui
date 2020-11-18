@@ -1,9 +1,16 @@
-query TotalExpenses($from: date, $to: date) {
-  invoice_items_aggregate(where: {invoice: {date: {_gte: $from, _lte: $to}}}) {
-    aggregate {
-      sum {
-        total
+query TotalExpenses($from: date, $to: date, $categoryId: Int, $shopId: Int) {
+  invoice_items_aggregate(
+    where: {
+      invoice: { 
+        date: { _gte: $from, _lte: $to },
+        shop_id: { _eq: $shopId }
+      }, 
+      category_id: { _eq: $categoryId }
+    }) {
+      aggregate {
+        sum {
+          total
+        }
       }
-    }
   }
 }

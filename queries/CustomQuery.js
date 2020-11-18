@@ -1,5 +1,6 @@
 import definitions from '@/definitions'
 import gql from 'graphql-tag'
+import merge from 'lodash/merge'
 
 export default class CustomQuery {
   constructor({
@@ -10,7 +11,8 @@ export default class CustomQuery {
     searchFields,
     limit,
     offset,
-    aggregate
+    aggregate,
+    filter
   }) {
     this.resource = resource
     this.fields = fields
@@ -20,6 +22,7 @@ export default class CustomQuery {
     this.limit = limit
     this.offset = offset
     this.aggregate = aggregate
+    this.filter = filter
   }
 
   name() {
@@ -166,7 +169,7 @@ export default class CustomQuery {
       }
     }
 
-    return where
+    return merge(where, this.filter)
   }
 
   toApollo() {

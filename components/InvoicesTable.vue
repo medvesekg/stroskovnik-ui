@@ -78,6 +78,9 @@
           <v-icon small>note</v-icon>
         </v-btn>
       </template>
+      <template v-else>
+        abc
+      </template>
     </template>
     <template #item.actions="{item: invoice}">
       <template v-if="!editing[invoice.id]">

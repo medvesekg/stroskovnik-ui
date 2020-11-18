@@ -1,6 +1,6 @@
 <template>
   <div>
-    <date-range-input v-model="range" />
+    <date-range-input v-model="range" label="Date range" />
     <v-autocomplete
       v-model="categoryId"
       :items="categories"
@@ -10,11 +10,21 @@
       no-data="Izberite kategorijo"
       data-lpignore="true"
       clearable
-    >
-    </v-autocomplete>
+    />
+    <v-autocomplete
+      v-model="shopId"
+      :items="shops"
+      item-text="name"
+      item-value="id"
+      label="Trgovina"
+      no-data="Izberite trgovino"
+      data-lpignore="true"
+      clearable
+    />
     <expenses-chart2
       group-by="month"
       :category-id="categoryId"
+      :shop-id="shopId"
       :from="from"
       :to="to"
     />
@@ -25,6 +35,7 @@
 import ExpensesChart2 from '@/components/widgets/ExpensesChart2'
 import DateRangeInput from '@/components/DateRangeInput'
 import Categories from '@/queries/Categories'
+import Shops from '@/queries/Shops'
 import get from 'lodash/get'
 
 export default {
@@ -33,12 +44,16 @@ export default {
   apollo: {
     categories: {
       query: Categories
+    },
+    shops: {
+      query: Shops
     }
   },
 
   data() {
     return {
       categoryId: null,
+      shopId: null,
       range: null
     }
   },
