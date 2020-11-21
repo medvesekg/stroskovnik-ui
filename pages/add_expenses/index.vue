@@ -13,7 +13,7 @@
                   <date-input v-model="date" label="Datum računa" />
                 </v-col>
                 <v-col cols="4" md="3">
-                  <shop-input
+                  <shop-combobox
                     ref="shopInput"
                     v-model="shop"
                     v-validate="'required'"
@@ -90,7 +90,7 @@
 <script>
 import ExpenseInput from '@/components/ExpenseInput.vue'
 import DateInput from '@/components/DateInput.vue'
-import ShopInput from '@/components/ShopInput.vue'
+import ShopCombobox from '@/components/inputs/ShopCombobox.vue'
 import PhotoInput from '@/components/PhotoInput'
 import { v4 as uuid } from 'uuid'
 import InvoicesTable from '@/components/InvoicesTable'
@@ -110,7 +110,7 @@ export default {
   components: {
     ExpenseInput,
     DateInput,
-    ShopInput,
+    ShopCombobox,
     PhotoInput,
     InvoicesTable
   },

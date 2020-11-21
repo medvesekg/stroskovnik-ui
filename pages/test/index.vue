@@ -1,54 +1,19 @@
 <template>
   <div>
-    <date-range-input v-model="range" />
-    <v-autocomplete
-      v-model="categoryId"
-      :items="categories"
-      item-text="name"
-      item-value="id"
-      label="Kategorija"
-      no-data="Izberite kategorijo"
-      data-lpignore="true"
-      clearable
-    >
-    </v-autocomplete>
-    <expenses-chart2
-      group-by="month"
-      :category-id="categoryId"
-      :from="from"
-      :to="to"
-    />
+    <date-range-input v-model="range" type="month" single />
   </div>
 </template>
 
 <script>
-import ExpensesChart2 from '@/components/widgets/ExpensesChart2'
-import DateRangeInput from '@/components/DateRangeInput'
-import Categories from '@/queries/Categories'
-import get from 'lodash/get'
+import DateRangeInput from '@/components/inputs/DateRangeInput'
+import AppDatePicker from '@/components/app/AppDatePicker'
 
 export default {
-  components: { ExpensesChart2, DateRangeInput },
-
-  apollo: {
-    categories: {
-      query: Categories
-    }
-  },
-
+  components: { DateRangeInput, AppDatePicker },
   data() {
     return {
-      categoryId: null,
+      date: new Date(),
       range: null
-    }
-  },
-
-  computed: {
-    from() {
-      return get(this.range, 'from', null)
-    },
-    to() {
-      return get(this.range, 'to', null)
     }
   }
 }

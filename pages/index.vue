@@ -10,32 +10,25 @@
               </span>
             </v-col>
             <v-col class="d-flex align-center" cols="12" sm="4">
-              <month-input
-                v-model="month"
-                :max="maxDate"
-                :min="minDate"
-                :display="dateRangeDisplay"
+              <date-range-input
+                v-model="range"
                 label="Obdobje"
+                type="month"
+                single
+                :display="displayRange"
+                :clearable="false"
               />
-              <v-btn
-                class="align-self-end ml-1"
-                title="Poljubno obdobje"
-                x-small
-              >
-                <v-icon small>date_range</v-icon>
-              </v-btn>
             </v-col>
             <v-spacer />
             <v-col class="d-flex align-end justify-end" cols="12" sm="4">
               <v-btn to="/add_expenses" color="secondary" link
                 >Dodaj strošek</v-btn
               >
-              <!-- <v-btn to="/incomes" color="primary" link>Dodaj dohodek</v-btn> -->
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <expenses-chart :from="from" :to="to" />
+              <expenses-chart-widget :from="from" :to="to" />
               <v-card>
                 <v-container>
                   <v-row>
@@ -80,8 +73,8 @@
 </template>
 
 <script>
-import MonthInput from '@/components/MonthInput'
-import ExpensesChart from '@/components/widgets/ExpensesChart'
+import DateRangeInput from '@/components/inputs/DateRangeInput'
+import ExpensesChartWidget from '@/components/widgets/ExpensesChartWidget'
 import ExpensesBreakdownChart from '@/components/widgets/ExpensesBreakdownChart'
 import MostExpensiveItems from '@/components/widgets/MostExpensiveItems'
 import MostExpensiveInvoices from '@/components/widgets/MostExpensiveInvoices'
@@ -101,8 +94,8 @@ export default {
   name: 'PageDashboard',
 
   components: {
-    MonthInput,
-    ExpensesChart,
+    DateRangeInput,
+    ExpensesChartWidget,
     ExpensesBreakdownChart,
     MostExpensiveItems,
     MostExpensiveInvoices,
@@ -111,6 +104,7 @@ export default {
   },
 
   apollo: {
+    /*
     minDateInDb: {
       query: gql`
         query MinDate {
@@ -139,49 +133,32 @@ export default {
       `,
       update: data => get(data, 'invoices_aggregate.aggregate.max.date')
     }
+    */
   },
 
   data() {
     return {
-      month: new Date()
+      range: {
+        from: startOfMonth(new Date()),
+        to: new Date()
+      }
     }
   },
 
   computed: {
-    from() {
-      return format(startOfMonth(this.month), 'MM-dd-yyyy')
-    },
-    to() {
-      return format(endOfMonth(this.month), 'MM-dd-yyyy')
-    },
-    fromD() {
-      return startOfMonth(this.month)
-    },
-    toD() {
-      const now = new Date()
-      const monthEnd = endOfMonth(this.month)
-      return Math.min(now, monthEnd)
-    },
-    dateRangeDisplay() {
-      const from = format(this.fromD, 'd MMM yyyy')
-      const to = format(this.toD, 'd MMM yyyy')
-
-      return `${from} - ${to}`
-    },
-    today() {
+    now() {
       return new Date()
     },
-    minDate() {
-      const minDate = this.minDateInDb
-        ? earliestDate([new Date(this.minDateInDb), this.today])
-        : this.today
-      return format(minDate, 'yyyy-MM-dd')
+    from() {
+      return this.range.from
     },
-    maxDate() {
-      const maxDate = this.maxDateInDb
-        ? latestDate([new Date(this.maxDateInDb), this.today])
-        : this.today
-      return format(maxDate, 'yyyy-MM-dd')
+    to() {
+      return this.range.to
+    },
+    displayRange() {
+      const format = this.$format.date.dateExt
+      const range = this.range
+      return `${format(range.from)} - ${format(range.to)}`
     }
   },
 

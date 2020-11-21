@@ -86,12 +86,13 @@ export default {
         : this.display
     },
     monthPickerValue() {
-      return format(this.value, 'yyyy-MM')
+      return this.value ? format(this.value, 'yyyy-MM') : null
     }
   },
 
   methods: {
     onInput(event) {
+      console.log(event)
       this.datePicker = false
       this.$emit('input', new Date(event))
     }

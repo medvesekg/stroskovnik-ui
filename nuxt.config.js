@@ -3,8 +3,6 @@ import pkg from './package'
 import colors from 'vuetify/es5/util/colors'
 
 export default {
-  mode: 'universal',
-
   /*
    ** Headers of the page
    */
@@ -42,7 +40,11 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['@plugins/vee-validate', '@plugins/firebase'],
+  plugins: [
+    '@plugins/vee-validate', 
+    '@plugins/firebase', 
+    '@plugins/format'
+  ],
 
   /*
    ** Nuxt.js modules

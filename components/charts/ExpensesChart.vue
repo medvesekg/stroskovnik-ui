@@ -1,36 +1,11 @@
 <template>
   <div>
-    <v-container>
-      <v-row>
-        <v-col cols="12" md="10">
-          <v-skeleton-loader
-            v-if="$apollo.queries.invoiceItems.loading"
-            type="image"
-          />
-          <app-chart v-else :options="chart" :width="3" :height="1" />
-        </v-col>
-        <v-col cols="12" md="2">
-          <total-expenses
-            :from="from"
-            :to="to"
-            :category-id="categoryId"
-            :shop-id="shopId"
-          />
-          <total-invoices
-            :from="from"
-            :to="to"
-            :category-id="categoryId"
-            :shop-id="shopId"
-          />
-          <total-invoice-items
-            :from="from"
-            :to="to"
-            :category-id="categoryId"
-            :shop-id="shopId"
-          />
-        </v-col>
-      </v-row>
-    </v-container>
+    <v-skeleton-loader
+      v-if="$apollo.queries.invoiceItems.loading"
+      type="image"
+    />
+    <app-chart v-else :options="chart" :width="3" :height="1" />
+
     <details-modal
       v-model="dialog.open"
       :from="dialog.from"
@@ -42,9 +17,6 @@
 </template>
 
 <script>
-import TotalInvoices from '@/components/widgets/TotalInvoices'
-import TotalInvoiceItems from '@/components/widgets/TotalInvoiceItems'
-import TotalExpenses from '@/components/widgets/TotalExpenses'
 import AppChart from '@/components/AppChart'
 
 import { userCurrencyFormat } from '@/format/currency'
@@ -55,6 +27,7 @@ import InvoiceItems from '@/queries/InvoiceItems.gql'
 import merge from 'lodash/merge'
 import groupBy from 'lodash/groupBy'
 import sumBy from 'lodash/sumBy'
+import sum from 'lodash/sum'
 import isFunction from 'lodash/isFunction'
 import get from 'lodash/get'
 import minBy from 'lodash/minBy'
@@ -62,24 +35,47 @@ import maxBy from 'lodash/maxBy'
 
 import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
+import endOfDay from 'date-fns/endOfDay'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import eachDayOfInterval from 'date-fns/eachDayOfInterval'
 import eachMonthOfInterval from 'date-fns/eachMonthOfInterval'
+import gql from 'graphql-tag'
 import DetailsModal from '../DetailsModal.vue'
 
 export default {
   components: {
-    TotalInvoices,
-    TotalInvoiceItems,
-    TotalExpenses,
     AppChart,
     DetailsModal
   },
 
   apollo: {
     invoiceItems: {
-      query: InvoiceItems,
+      query: gql`
+        query InvoiceItems(
+          $from: date
+          $to: date
+          $categoryId: Int
+          $shopId: Int
+        ) {
+          invoice_items(
+            where: {
+              invoice: {
+                date: { _gte: $from, _lte: $to }
+                shop_id: { _eq: $shopId }
+              }
+              category_id: { _eq: $categoryId }
+            }
+            order_by: { invoice: { date: asc } }
+          ) {
+            total
+            invoice {
+              date
+              shop_id
+            }
+          }
+        }
+      `,
       variables() {
         return {
           from: this.from,
@@ -109,11 +105,6 @@ export default {
       default: 'day',
       validation: v => ['day', 'week', 'month', 'year'].includes(v)
     },
-    cummulative: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     categoryId: {
       type: [Number, String],
       required: false,
@@ -123,6 +114,11 @@ export default {
       type: [Number, String],
       required: false,
       default: null
+    },
+    chartFn: {
+      type: Function,
+      required: false,
+      default: () => ({})
     }
   },
 
@@ -136,7 +132,10 @@ export default {
       groupBys: {
         day: {
           key: date => userDateFormat(date),
-          range: eachDayOfInterval
+          range: eachDayOfInterval,
+          from: label => parse(label, 'd. M. yyyy', new Date(0, 0, 0, 0, 0, 0)),
+          to: label =>
+            endOfDay(parse(label, 'd. M. yyyy', new Date(0, 0, 0, 0, 0, 0)))
         },
         week: {
           key: null
@@ -157,10 +156,10 @@ export default {
 
   computed: {
     chart() {
-      if (this.cummulative) {
-        return this.createRunningTotalChart()
-      }
-      return this.createInvoiceItemsChart()
+      return merge(
+        this.defaultChart(),
+        this.chartFn(Object.values(this.groupedSums))
+      )
     },
 
     config() {
@@ -172,17 +171,24 @@ export default {
     },
 
     minDate() {
-      const minDateItem = minBy(this.invoiceItems, item => this.getDate(item))
-      return this.getDate(minDateItem)
+      if (this.invoiceItems && this.invoiceItems.count) {
+        const minDateItem = minBy(this.invoiceItems, item => this.getDate(item))
+        return this.getDate(minDateItem)
+      }
+      return null
     },
     maxDate() {
-      const maxDateItem = maxBy(this.invoiceItems, item => this.getDate(item))
-      return this.getDate(maxDateItem)
+      if (this.invoiceItems && this.invoiceItems.count) {
+        const maxDateItem = maxBy(this.invoiceItems, item => this.getDate(item))
+        return this.getDate(maxDateItem)
+      }
+      return null
     },
 
     range() {
       const start = this.from || this.minDate
       const end = this.to || this.maxDate
+
       if (start && end) {
         return this.config.range({ start, end }).reduce((res, date) => {
           const key = this.config.key(date)
@@ -201,92 +207,63 @@ export default {
       }
 
       return merge({}, this.range, grouped)
+    },
+
+    average() {
+      const sums = Object.values(this.groupedSums)
+      return sums.length ? sum(sums) / sums.length : 0
+    }
+  },
+
+  watch: {
+    average() {
+      this.$emit('average', this.average)
     }
   },
 
   methods: {
-    createInvoiceItemsChart() {
-      return this.createChart({
+    defaultChart() {
+      return {
         type: 'bar',
         data: {
           datasets: [
             {
-              data: Object.values(this.groupedSums)
+              label: 'Stroški',
+              data: Object.values(this.groupedSums),
+              fill: false,
+              borderColor: this.$vuetify.theme.themes.dark.error,
+              backgroundColor: this.$vuetify.theme.themes.dark.error
             }
           ],
           labels: Object.keys(this.groupedSums)
-        }
-      })
-    },
-    createRunningTotalChart(data) {
-      return this.createChart({
-        type: 'line',
-        data: {
-          datasets: [
-            {
-              data: this.createRunningTotalFrominvoiceItems(data),
-              lineTension: 0
+        },
+        options: {
+          tooltips: {
+            callbacks: {
+              label: ({ value }) => userCurrencyFormat(value),
+              title: data => data[0].xLabel
             }
-          ],
-          labels: data.map(data => data.invoice.date)
-        }
-      })
-    },
-    createRunningTotalFrominvoiceItems(data) {
-      let runningTotal = 0
-      const runningTotalArray = []
-      for (const item of data) {
-        runningTotal += item.sum
-        runningTotalArray.push(runningTotal)
-      }
-      return runningTotalArray
-    },
-
-    createChart(options) {
-      return merge(
-        {
-          type: '', // required
-          data: {
-            datasets: [
+          },
+          scales: {
+            yAxes: [
               {
-                label: 'Stroški',
-                data: [], // required
-                fill: false,
-                borderColor: this.$vuetify.theme.themes.dark.error,
-                backgroundColor: this.$vuetify.theme.themes.dark.error
+                ticks: {
+                  beginAtZero: true,
+                  callback: val => userCurrencyFormat(val)
+                }
               }
             ],
-            labels: [] // required
-          },
-          options: {
-            tooltips: {
-              callbacks: {
-                label: ({ value }) => userCurrencyFormat(value),
-                title: data => data[0].xLabel
+            xAxes: [
+              {
+                ticks: {
+                  callback: val => val
+                }
               }
-            },
-            scales: {
-              yAxes: [
-                {
-                  ticks: {
-                    beginAtZero: true,
-                    callback: val => userCurrencyFormat(val)
-                  }
-                }
-              ],
-              xAxes: [
-                {
-                  ticks: {
-                    callback: val => val
-                  }
-                }
-              ]
-            },
-            onClick: this.onChartClick
-          }
-        },
-        options
-      )
+            ]
+          },
+          onClick: this.onChartClick
+        }
+      }
     },
 
     onChartClick(event, items) {
