@@ -21,8 +21,8 @@
               :filter="{
                 shop_id: { _eq: shopId },
                 date: {
-                  _gte: databaseDateFormat(from),
-                  _lte: databaseDateFormat(to)
+                  _gte: from ? $format.date.databaseDate(from) : null,
+                  _lte: to ? $format.date.databaseDate(to) : null
                 },
                 items: {
                   category_id: {
@@ -41,8 +41,8 @@
                 invoice: {
                   shop_id: { _eq: shopId },
                   date: {
-                    _gte: databaseDateFormat(from),
-                    _lte: databaseDateFormat(to)
+                    _gte: from ? $format.date.databaseDate(from) : null,
+                    _lte: to ? $format.date.databaseDate(to) : null
                   }
                 }
               }"
@@ -55,8 +55,7 @@
 </template>
 
 <script>
-import { databaseDateFormat } from '@/format/date'
-import GraphqlTable from './GraphqlTable'
+import GraphqlTable from '@/components/GraphqlTable'
 
 export default {
   components: { GraphqlTable },
@@ -91,9 +90,6 @@ export default {
     return {
       mode: 'items'
     }
-  },
-  methods: {
-    databaseDateFormat
   }
 }
 </script>

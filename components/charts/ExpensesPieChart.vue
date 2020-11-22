@@ -1,18 +1,14 @@
 <template>
-  <v-card>
-    <v-app-bar color="accent"> Stroški po {{ name }} </v-app-bar>
-    <v-container>
-      <v-row>
-        <v-col>
-          <v-skeleton-loader
-            v-if="$apollo.queries.invoiceItems.loading"
-            type="image"
-          />
-          <app-chart v-else :options="chart" :width="1" :height="1" />
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
+  <div>
+    <app-chart v-bind="$attrs" :options="chart" v-on="$listeners" />
+    <chart-details-modal
+      v-model="dialog.open"
+      :from="from"
+      :to="to"
+      :category-id="dialog.categoryId"
+      :shop-id="dialog.shopId"
+    />
+  </div>
 </template>
 
 <script>
@@ -20,13 +16,12 @@ import AppChart from '@/components/AppChart'
 import InvoiceItems from '@/queries/InvoiceItems'
 import Categories from '@/queries/Categories'
 import Shops from '@/queries/Shops'
-import { userCurrencyFormat } from '@/format/currency'
-import { userPercentFormat } from '@/format/number'
 import palette from 'google-palette'
 import keyBy from 'lodash/keyBy'
 import get from 'lodash/get'
+import ChartDetailsModal from './ChartDetailsModal'
 
-const types = {
+export const types = {
   categories: {
     name: 'kategorijah',
     query: Categories,
@@ -40,7 +35,7 @@ const types = {
 }
 
 export default {
-  components: { AppChart },
+  components: { AppChart, ChartDetailsModal },
 
   props: {
     type: {
@@ -85,6 +80,11 @@ export default {
 
   data() {
     return {
+      dialog: {
+        open: false,
+        shopId: null,
+        categoryId: null
+      },
       types: types,
       groups: {},
       invoiceItems: []
@@ -120,9 +120,17 @@ export default {
     }
   },
 
+  watch: {
+    '$apollo.loading': {
+      handler(loading) {
+        console.log(loading)
+        this.$emit('loading', loading)
+      }
+    }
+  },
+
   methods: {
     createPieChart(data) {
-      // const total = data.reduce((sum, item) => (sum += item.sum), 0)
       return {
         type: 'pie',
         data: {
@@ -138,27 +146,53 @@ export default {
           tooltips: {
             callbacks: {
               title: (items, data) => data.labels[items[0].index],
-              label: (item, data) => {
-                const hiddenIndexes = Object.values(
-                  data.datasets[item.datasetIndex]._meta
-                )[0]
-                  .data.filter(item => item.hidden)
-                  .map(item => item._index)
-
-                let value = data.datasets[item.datasetIndex].data[item.index]
-                const total = data.datasets[item.datasetIndex].data.reduce(
-                  (sum, value, idx) => {
-                    if (hiddenIndexes.includes(idx)) return sum
-                    return (sum += value)
-                  }
-                )
-                const percent = userPercentFormat(value / total)
-                value = userCurrencyFormat(value)
-
-                return `${value}  (${percent})`
-              }
+              label: this.getLabel
             }
-          }
+          },
+          onClick: this.onChartClick
+        }
+      }
+    },
+
+    getLabel(item, data) {
+      const hiddenIndexes = Object.values(
+        data.datasets[item.datasetIndex]._meta
+      )[0]
+        .data.filter(item => item.hidden)
+        .map(item => item._index)
+
+      let value = data.datasets[item.datasetIndex].data[item.index]
+      const total = data.datasets[item.datasetIndex].data.reduce(
+        (sum, value, idx) => {
+          if (hiddenIndexes.includes(idx)) return sum
+          return (sum += value)
+        }
+      )
+      const percent = this.$format.number.percent(value / total)
+      value = this.$format.number.currency(value)
+
+      return `${value}  (${percent})`
+    },
+
+    onChartClick(event, items) {
+      if (items && items[0]) {
+        const i = items[0]._index
+        const label = items[0]._chart.data.labels[i]
+
+        if (this.type === 'categories') {
+          const category = Object.values(this.groups).find(
+            category => category.name === label
+          )
+          this.dialog.shopId = null
+          this.dialog.categoryId = category.id
+          this.dialog.open = true
+        } else if (this.type === 'shops') {
+          const shop = Object.values(this.groups).find(
+            shop => shop.name === label
+          )
+          this.dialog.categoryId = null
+          this.dialog.shopId = shop.id
+          this.dialog.open = true
         }
       }
     }

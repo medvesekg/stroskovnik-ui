@@ -6,7 +6,7 @@
     />
     <app-chart v-else :options="chart" :width="3" :height="1" />
 
-    <details-modal
+    <chart-details-modal
       v-model="dialog.open"
       :from="dialog.from"
       :to="dialog.to"
@@ -18,9 +18,6 @@
 
 <script>
 import AppChart from '@/components/AppChart'
-
-import { userCurrencyFormat } from '@/format/currency'
-import { userDateFormat } from '@/format/date'
 
 import InvoiceItems from '@/queries/InvoiceItems.gql'
 
@@ -41,12 +38,12 @@ import parse from 'date-fns/parse'
 import eachDayOfInterval from 'date-fns/eachDayOfInterval'
 import eachMonthOfInterval from 'date-fns/eachMonthOfInterval'
 import gql from 'graphql-tag'
-import DetailsModal from '../DetailsModal.vue'
+import ChartDetailsModal from './ChartDetailsModal'
 
 export default {
   components: {
     AppChart,
-    DetailsModal
+    ChartDetailsModal
   },
 
   apollo: {
@@ -131,7 +128,7 @@ export default {
       },
       groupBys: {
         day: {
-          key: date => userDateFormat(date),
+          key: date => this.$format.date.date(date),
           range: eachDayOfInterval,
           from: label => parse(label, 'd. M. yyyy', new Date(0, 0, 0, 0, 0, 0)),
           to: label =>
@@ -218,6 +215,11 @@ export default {
   watch: {
     average() {
       this.$emit('average', this.average)
+    },
+    '$apollo.loading': {
+      handler: function(loading) {
+        this.$emit('loading', loading)
+      }
     }
   },
 
@@ -240,7 +242,7 @@ export default {
         options: {
           tooltips: {
             callbacks: {
-              label: ({ value }) => userCurrencyFormat(value),
+              label: ({ value }) => this.$format.number.currency(value),
               title: data => data[0].xLabel
             }
           },
@@ -249,7 +251,7 @@ export default {
               {
                 ticks: {
                   beginAtZero: true,
-                  callback: val => userCurrencyFormat(val)
+                  callback: val => this.$format.number.currency(val)
                 }
               }
             ],

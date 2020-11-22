@@ -13,12 +13,10 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="10">
-          <!--
-          <template v-if="$apollo.queries.dailyExpenses.loading">
+          <template v-if="loading">
             <v-skeleton-loader type="image" />
           </template>
-          -->
-          <template>
+          <template v-show="!loading">
             <expenses-chart
               v-if="type === 'daily'"
               :from="from"

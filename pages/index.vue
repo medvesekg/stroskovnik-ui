@@ -33,14 +33,14 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6">
-                      <expenses-breakdown-chart
+                      <expenses-pie-chart-widget
                         :from="from"
                         :to="to"
                         type="categories"
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <expenses-breakdown-chart
+                      <expenses-pie-chart-widget
                         :from="from"
                         :to="to"
                         type="shops"
@@ -75,7 +75,7 @@
 <script>
 import DateRangeInput from '@/components/inputs/DateRangeInput'
 import ExpensesChartWidget from '@/components/widgets/ExpensesChartWidget'
-import ExpensesBreakdownChart from '@/components/widgets/ExpensesBreakdownChart'
+import ExpensesPieChartWidget from '@/components/widgets/ExpensesPieChartWidget'
 import MostExpensiveItems from '@/components/widgets/MostExpensiveItems'
 import MostExpensiveInvoices from '@/components/widgets/MostExpensiveInvoices'
 import MostPopularShops from '@/components/widgets/MostPopularShops'
@@ -96,7 +96,7 @@ export default {
   components: {
     DateRangeInput,
     ExpensesChartWidget,
-    ExpensesBreakdownChart,
+    ExpensesPieChartWidget,
     MostExpensiveItems,
     MostExpensiveInvoices,
     MostPopularItems,

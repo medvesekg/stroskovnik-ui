@@ -62,11 +62,14 @@ export default {
       parse: ''
     },
     percent: {
-      format: '',
+      format: number =>
+        (number * 100).toLocaleString('sl-SL', { maximumFractionDigits: 2 }) +
+        '%',
       parse: ''
     },
     currency: {
-      format: '',
+      format: number =>
+        number.toLocaleString('sl-SL', { style: 'currency', currency: 'EUR' }),
       parse: ''
     }
   }
