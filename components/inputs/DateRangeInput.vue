@@ -24,16 +24,14 @@
     <app-date-picker
       style="display:inline-block"
       :value="get(value, 'from')"
-      :min="min"
-      :max="max"
+      :max="single ? null : maxFrom"
       :type="type"
       @input="onInputFrom"
     /><app-date-picker
       v-if="!single"
       style="display:inline-block"
       :value="get(value, 'to')"
-      :min="min"
-      :max="max"
+      :min="minTo"
       :type="type"
       @input="onInputTo"
     />
@@ -45,13 +43,33 @@ import AppDatePicker from '@/components/app/AppDatePicker'
 
 import get from 'lodash/get'
 
-import format from 'date-fns/format'
 import startOfDay from 'date-fns/startOfDay'
 import endOfDay from 'date-fns/endOfDay'
 import startOfMonth from 'date-fns/startOfMonth'
 import endOfMonth from 'date-fns/endOfMonth'
 import startOfYear from 'date-fns/startOfYear'
 import endOfYear from 'date-fns/endOfYear'
+import format from '@/format/format'
+
+export const types = {
+  day: {
+    pickerType: 'day',
+    format: format.date.date,
+    from: startOfDay,
+    to: endOfDay
+  },
+  month: {
+    pickerType: 'month',
+    format: format.date.month,
+    from: startOfMonth,
+    to: endOfMonth
+  },
+  year: {
+    pickerType: 'year',
+    from: startOfYear,
+    to: endOfYear
+  }
+}
 
 export default {
   components: { AppDatePicker },
@@ -73,7 +91,7 @@ export default {
       type: String,
       required: false,
       default: 'day',
-      validation: v => ['day', 'month', 'year'].includes(v)
+      validation: v => Object.keys(types).includes(v)
     },
     single: {
       type: Boolean,
@@ -114,33 +132,13 @@ export default {
 
   data() {
     return {
-      open: false,
-
-      types: {
-        day: {
-          pickerType: 'day',
-          format: this.$format.date.date,
-          from: startOfDay,
-          to: endOfDay
-        },
-        month: {
-          pickerType: 'month',
-          format: this.$format.date.month,
-          from: startOfMonth,
-          to: endOfMonth
-        },
-        year: {
-          pickerType: 'year',
-          from: startOfYear,
-          to: endOfYear
-        }
-      }
+      open: false
     }
   },
 
   computed: {
     config() {
-      return this.types[this.type]
+      return types[this.type]
     },
     displayValue() {
       if (this.display) return this.display
@@ -158,6 +156,12 @@ export default {
       }
 
       return displayValue
+    },
+    maxFrom() {
+      return get(this.value, 'to')
+    },
+    minTo() {
+      return get(this.value, 'from')
     }
   },
 
@@ -186,7 +190,7 @@ export default {
         to: get(this.value, 'to')
       }
 
-      newRange.to = this.config.from(date)
+      newRange.to = this.config.to(date)
 
       this.$emit('input', newRange)
     }

@@ -22,12 +22,14 @@
               :from="from"
               :to="to"
               group-by="day"
+              @loading="loading = $event"
             />
             <cummulative-expenses-chart
               v-else
               :from="from"
               :to="to"
               group-by="day"
+              @loading="loading = $event"
             />
           </template>
         </v-col>
@@ -47,7 +49,6 @@ import CummulativeExpensesChart from '@/components/charts/CummulativeExpensesCha
 import TotalInvoices from '@/components/widgets/TotalInvoices'
 import TotalInvoiceItems from '@/components/widgets/TotalInvoiceItems'
 import TotalExpenses from '@/components/widgets/TotalExpenses'
-import AppChart from '@/components/AppChart'
 import { userCurrencyFormat } from '@/format/currency'
 
 import DailyExpenses from '@/queries/DailyExpenses.gql'
@@ -79,7 +80,8 @@ export default {
 
   data() {
     return {
-      type: 'runningTotal'
+      type: 'runningTotal',
+      loading: false
     }
   }
 }

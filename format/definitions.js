@@ -25,8 +25,8 @@ export default {
       parse: string => parse(string, 'MMM yyy', defaultDate, { locale: sl })
     },
     databaseDate: {
-      format: date => format(date, 'MM-dd-yyyy', { locale: sl }),
-      parse: string => parse(string, 'MM-dd-yyyy', defaultDate, { locale: sl })
+      format: date => format(date, 'yyyy-MM-dd', { locale: sl }),
+      parse: string => parse(string, 'yyyy-MM-dd', defaultDate, { locale: sl })
     },
     pickerDate: {
       format: date => format(date, 'yyyy-MM-dd', { locale: sl }),

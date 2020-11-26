@@ -127,7 +127,7 @@
   </v-form>
 </template>
 <script>
-import AppCombobox from '@/components/AppCombobox'
+import AppCombobox from '@/components/app/AppCombobox'
 import debounce from 'lodash/debounce'
 import Categories from '@/queries/Categories'
 import gql from 'graphql-tag'

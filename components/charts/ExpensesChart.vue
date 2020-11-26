@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import AppChart from '@/components/AppChart'
+import AppChart from '@/components/app/AppChart'
 
 import InvoiceItems from '@/queries/InvoiceItems.gql'
 
@@ -75,8 +75,8 @@ export default {
       `,
       variables() {
         return {
-          from: this.from,
-          to: this.to,
+          from: this.from ? this.$format.date.databaseDate(this.from) : null,
+          to: this.to ? this.$format.date.databaseDate(this.to) : null,
           categoryId: this.categoryId,
           shopId: this.shopId
         }
@@ -223,6 +223,13 @@ export default {
     }
   },
 
+  created() {
+    const a = 2448.8961399999976
+    console.log(
+      a.toLocaleString('sl-SL', { style: 'currency', currency: 'EUR' })
+    )
+  },
+
   methods: {
     defaultChart() {
       return {
@@ -242,7 +249,9 @@ export default {
         options: {
           tooltips: {
             callbacks: {
-              label: ({ value }) => this.$format.number.currency(value),
+              label: ({ value }) => {
+                return this.$format.number.currency(Number(value))
+              },
               title: data => data[0].xLabel
             }
           },

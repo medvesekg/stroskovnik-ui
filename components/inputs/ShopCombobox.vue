@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import AppCombobox from '@/components/AppCombobox'
+import AppCombobox from '@/components/app/AppCombobox'
 import Shops from '@/queries/Shops'
 
 export default {

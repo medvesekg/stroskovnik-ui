@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import AppChart from '@/components/AppChart'
+import AppChart from '@/components/app/AppChart'
 import InvoiceItems from '@/queries/InvoiceItems'
 import Categories from '@/queries/Categories'
 import Shops from '@/queries/Shops'
@@ -123,7 +123,6 @@ export default {
   watch: {
     '$apollo.loading': {
       handler(loading) {
-        console.log(loading)
         this.$emit('loading', loading)
       }
     }

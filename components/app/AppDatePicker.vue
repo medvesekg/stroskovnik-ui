@@ -1,6 +1,8 @@
 <template>
   <v-date-picker
     :value="adaptIn(value)"
+    :min="adaptIn(min)"
+    :max="adaptIn(max)"
     :show-current="false"
     :type="adapter.pickerType"
     locale="sl-SL"
@@ -26,6 +28,16 @@ export default {
       required: false,
       default: 'day',
       validation: v => ['day', 'month', 'year'].includes(v)
+    },
+    min: {
+      type: Date,
+      required: false,
+      default: null
+    },
+    max: {
+      type: Date,
+      required: false,
+      default: null
     }
   },
 

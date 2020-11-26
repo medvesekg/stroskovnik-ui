@@ -115,6 +115,11 @@ export default {
           to: '/categories'
         },
         {
+          icon: 'shopping_cart',
+          title: 'Izdelki',
+          to: '/products'
+        },
+        {
           icon: 'analytics',
           title: 'Analiza',
           to: '/analyze'

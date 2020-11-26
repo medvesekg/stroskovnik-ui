@@ -28,6 +28,13 @@
           </v-row>
           <v-row>
             <v-col>
+              <customizable-dashboard
+                :layout="$store.state.dashboard.main"
+                :from="from"
+                :to="to"
+              />
+              <!--
+
               <expenses-chart-widget :from="from" :to="to" />
               <v-card>
                 <v-container>
@@ -64,6 +71,7 @@
                   </v-row>
                 </v-container>
               </v-card>
+            -->
             </v-col>
           </v-row>
         </v-container>
@@ -74,33 +82,21 @@
 
 <script>
 import DateRangeInput from '@/components/inputs/DateRangeInput'
-import ExpensesChartWidget from '@/components/widgets/ExpensesChartWidget'
-import ExpensesPieChartWidget from '@/components/widgets/ExpensesPieChartWidget'
-import MostExpensiveItems from '@/components/widgets/MostExpensiveItems'
-import MostExpensiveInvoices from '@/components/widgets/MostExpensiveInvoices'
-import MostPopularShops from '@/components/widgets/MostPopularShops'
-import MostPopularItems from '@/components/widgets/FavouriteItems'
-import { userDateFormat } from '@/format/date'
-import { userCurrencyFormat } from '@/format/currency'
+import CustomizableDashboard from '@/components/CustomizableDashboard'
+
 import startOfMonth from 'date-fns/startOfMonth'
-import endOfMonth from 'date-fns/endOfMonth'
-import format from 'date-fns/format'
-import gql from 'graphql-tag'
-import get from 'lodash/get'
-import latestDate from 'date-fns/max'
-import earliestDate from 'date-fns/min'
+
+// import gql from 'graphql-tag'
+// import get from 'lodash/get'
+// import latestDate from 'date-fns/max'
+// import earliestDate from 'date-fns/min'
 
 export default {
   name: 'PageDashboard',
 
   components: {
     DateRangeInput,
-    ExpensesChartWidget,
-    ExpensesPieChartWidget,
-    MostExpensiveItems,
-    MostExpensiveInvoices,
-    MostPopularItems,
-    MostPopularShops
+    CustomizableDashboard
   },
 
   apollo: {
@@ -160,11 +156,6 @@ export default {
       const range = this.range
       return `${format(range.from)} - ${format(range.to)}`
     }
-  },
-
-  methods: {
-    userDateFormat,
-    userCurrencyFormat
   }
 }
 </script>
