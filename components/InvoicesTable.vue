@@ -375,7 +375,6 @@ export default {
         .child(path)
         .getDownloadURL()
         .then(url => {
-          console.log(url)
           const a = document.createElement('a')
           a.href = url
           a.target = '_blank'

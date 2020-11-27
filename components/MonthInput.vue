@@ -92,7 +92,6 @@ export default {
 
   methods: {
     onInput(event) {
-      console.log(event)
       this.datePicker = false
       this.$emit('input', new Date(event))
     }

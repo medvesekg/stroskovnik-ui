@@ -58,7 +58,11 @@ export default {
       parse: ''
     },
     decimal2: {
-      format: '0',
+      format: number =>
+        number.toLocaleString('sl-SL', {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2
+        }),
       parse: ''
     },
     percent: {

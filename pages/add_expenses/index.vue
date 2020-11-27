@@ -153,7 +153,6 @@ export default {
         },
         updateQuery: (previousResult, { subscriptionData: { data } }) => {
           return data
-          // console.log(previousResult, subscriptionData)
         }
       },
       variables() {

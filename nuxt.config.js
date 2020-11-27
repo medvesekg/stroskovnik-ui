@@ -6,6 +6,8 @@ export default {
   /*
    ** Headers of the page
    */
+  ssr: true,
+
   head: {
     title: pkg.name,
     meta: [

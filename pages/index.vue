@@ -33,45 +33,6 @@
                 :from="from"
                 :to="to"
               />
-              <!--
-
-              <expenses-chart-widget :from="from" :to="to" />
-              <v-card>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6">
-                      <expenses-pie-chart-widget
-                        :from="from"
-                        :to="to"
-                        type="categories"
-                      />
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <expenses-pie-chart-widget
-                        :from="from"
-                        :to="to"
-                        type="shops"
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col sm="12">
-                      <most-expensive-items :from="from" :to="to" />
-                    </v-col>
-                    <v-col sm="6">
-                      <most-popular-items :from="from" :to="to" />
-                    </v-col>
-
-                    <v-col sm="6">
-                      <most-expensive-invoices :from="from" :to="to" />
-                    </v-col>
-                    <v-col sm="12">
-                      <most-popular-shops :from="from" :to="to" />
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            -->
             </v-col>
           </v-row>
         </v-container>
@@ -85,11 +46,6 @@ import DateRangeInput from '@/components/inputs/DateRangeInput'
 import CustomizableDashboard from '@/components/CustomizableDashboard'
 
 import startOfMonth from 'date-fns/startOfMonth'
-
-// import gql from 'graphql-tag'
-// import get from 'lodash/get'
-// import latestDate from 'date-fns/max'
-// import earliestDate from 'date-fns/min'
 
 export default {
   name: 'PageDashboard',

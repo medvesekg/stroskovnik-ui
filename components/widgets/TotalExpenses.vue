@@ -7,10 +7,7 @@
         indeterminate
       />
       <span v-else class="error--text text--lighten-1">{{
-        userNumberFormat(totalExpenses, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
+        $format.number.decimal2(totalExpenses)
       }}</span>
       <span class="float-right">€</span>
     </v-card-text>
@@ -59,6 +56,7 @@ export default {
       update: data => data.invoice_items_aggregate.aggregate.sum.total
     }
   },
+
   methods: {
     userNumberFormat
   }

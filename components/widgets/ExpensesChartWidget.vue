@@ -35,8 +35,10 @@
         </v-col>
         <v-col cols="12" md="2">
           <total-expenses :from="from" :to="to" />
+          <!--
           <total-invoices :from="from" :to="to" />
           <total-invoice-items :from="from" :to="to" />
+          -->
         </v-col>
       </v-row>
     </v-container>

@@ -1,21 +1,13 @@
 <template>
-  <customizable-dashboard :layout="$store.state.dashboard.main" />
+  <total-expenses :from="date" />
 </template>
 
 <script>
-import DateRangeInput from '@/components/inputs/DateRangeInput'
-import AppDatePicker from '@/components/app/AppDatePicker'
-import ExpensesPieChart from '@/components/charts/ExpensesPieChart'
-import ExpensesPieChartWidget from '@/components/widgets/ExpensesPieChartWidget'
-import CustomizableDashboard from '@/components/CustomizableDashboard'
+import TotalExpenses from '@/components/widgets/TotalExpenses'
 
 export default {
   components: {
-    DateRangeInput,
-    AppDatePicker,
-    ExpensesPieChart,
-    ExpensesPieChartWidget,
-    CustomizableDashboard
+    TotalExpenses
   },
   data() {
     return {

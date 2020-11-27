@@ -223,13 +223,6 @@ export default {
     }
   },
 
-  created() {
-    const a = 2448.8961399999976
-    console.log(
-      a.toLocaleString('sl-SL', { style: 'currency', currency: 'EUR' })
-    )
-  },
-
   methods: {
     defaultChart() {
       return {

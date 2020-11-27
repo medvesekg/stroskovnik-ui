@@ -19,7 +19,11 @@
       </thead>
       <tbody>
         <tr v-for="item in items" :key="item.id">
-          <td>{{ item.name }}</td>
+          <td>
+            <nuxt-link :to="`/products/${encodeURIComponent(item.name)}`">
+              {{ item.name }}
+            </nuxt-link>
+          </td>
           <td>{{ item.timesBought }}x</td>
           <td>{{ item.totalQuantity }}</td>
         </tr>
