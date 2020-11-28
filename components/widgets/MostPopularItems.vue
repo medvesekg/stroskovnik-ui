@@ -55,8 +55,8 @@ export default {
       query: InvoiceItems,
       variables() {
         return {
-          from: this.from,
-          to: this.to
+          from: this.$format.date.databaseDate(this.from),
+          to: this.$format.date.databaseDate(this.to)
         }
       },
       update: data => data.invoice_items
