@@ -5,10 +5,10 @@ export const state = () => ({
         component: 'ExpensesChartWidget',
         size: 12
       }
-    ]
-    /*
+    ],
+
     [
-      {
+      ({
         component: 'ExpensesPieChartWidget',
         props: {
           type: 'categories'
@@ -21,15 +21,16 @@ export const state = () => ({
           type: 'shops'
         },
         size: 6
-      }
-    ]
-    
+      })
+    ],
+
     [
       {
         component: 'MostExpensiveItems',
         size: 12
       }
     ],
+
     [
       {
         component: 'MostPopularItems',
@@ -40,12 +41,12 @@ export const state = () => ({
         size: 6
       }
     ],
+
     [
       {
         component: 'MostPopularShops',
         size: 12
       }
     ]
-    */
   ]
 })
