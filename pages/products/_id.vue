@@ -1,11 +1,21 @@
 <template>
   <v-container>
-    <h1>{{ $route.params.id }}</h1>
-    <h2>{{ shops }}</h2>
-
     <v-row>
       <v-col>
+        <h1>{{ $route.params.id }}</h1>
+        <h2>{{ shops }}</h2>
+      </v-col>
+      <v-col class="text-right">
+        <div class="d-inline-block">
+          <date-range-input v-model="range" label="Obdobje" />
+        </div>
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-4">
+      <v-col>
         <v-card>
+          <v-card-title>Cena</v-card-title>
           <v-card-text class="d-flex align-center">
             <span>Običajna cena</span>
             <span class="headline ml-auto">
@@ -15,54 +25,80 @@
               <span>€</span>
             </span>
           </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Zadnaj cena</span>
+            <span class="ml-auto">{{ $format.number.currency(lastCost) }}</span>
+          </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Najnižja cena</span>
+            <span class="ml-auto">{{ $format.number.currency(minCost) }}</span>
+          </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Najvišja cena</span>
+            <span class="ml-auto">{{ $format.number.currency(maxCost) }}</span>
+          </v-card-text>
         </v-card>
       </v-col>
-      <v-col class="d-flex align-center body-2">
-        <span>
-          Najnižja cena
-        </span>
-        <span class="ml-auto">
-          {{ $format.number.currency(minCost) }}
-        </span>
+      <v-col>
+        <v-card>
+          <v-card-title>Skupno</v-card-title>
+
+          <v-card-text class="d-flex align-center">
+            <span>Skupno št. nakupov</span>
+            <span class="headline error--text text--lighten-1 ml-auto">
+              {{ timesBought }}
+            </span>
+          </v-card-text>
+          <v-card-text
+            class="d-flex align-center"
+            :title="$parseFormat.date.databaseDate(lastBought)"
+          >
+            <span>Zadnji nakup</span>
+            <span class="ml-auto">{{
+              $parseFormat(lastBought, {
+                from: 'date.databaseDate',
+                to: 'date.relative'
+              })
+            }}</span>
+          </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Skupna količina</span>
+            <span class="ml-auto">{{ totalQuantity }}</span>
+          </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Skupna vsota</span>
+            <span class="ml-auto">{{
+              $format.number.currency(totalCost)
+            }}</span>
+          </v-card-text>
+        </v-card>
       </v-col>
-      <v-col class="d-flex align-center body-2">
-        <span>Najvišja cena</span>
-        <span class="ml-auto">
-          {{ $format.number.currency(maxCost) }}
-        </span>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col class="d-flex align-center body-2">
-        <span>Skupno št. nakupov</span>
-        <span class="ml-auto">
-          {{ timesBought }}
-        </span>
-      </v-col>
-      <v-col class="d-flex align-center body-2">
-        <span>Zadnji nakup</span>
-        <span
-          class="ml-auto"
-          :title="
-            $parseFormat(lastBought, {
-              from: 'date.databaseDate',
-              to: 'date.date'
-            })
-          "
-        >
-          {{
-            $parseFormat(lastBought, {
-              from: 'date.databaseDate',
-              to: 'date.relative'
-            })
-          }}
-        </span>
-      </v-col>
-      <v-col class="d-flex align-center body-2">
-        <span>Skupna količina</span>
-        <span class="ml-auto"
-          >{{ totalQuantity }} ({{ $format.number.currency(totalCost) }})</span
-        >
+      <v-col>
+        <v-card>
+          <v-card-title>Na mesec</v-card-title>
+
+          <v-card-text class="d-flex align-center">
+            <span>Povprečno št. nakupov / mesec</span>
+            <span class="ml-auto">{{
+              $format.number.decimal2(avgTimesBoughtPerMonth)
+            }}</span>
+          </v-card-text>
+          <v-card-text
+            class="d-flex align-center"
+            :title="$parseFormat.date.databaseDate(lastBought)"
+          >
+            <span>Povprečna količina / mesec</span>
+            <span class="ml-auto">{{
+              $format.number.decimal2(avgQuantityPerMonth)
+            }}</span>
+          </v-card-text>
+          <v-card-text class="d-flex align-center">
+            <span>Povprečna vsota / mesec</span>
+            <span class="ml-auto"
+              >{{ $format.number.currency(avgCostPerMonth) }}
+            </span>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 
@@ -78,7 +114,13 @@
         'invoice.date'
       ]"
       :filter="{
-        name: { _eq: $route.params.id }
+        name: { _eq: $route.params.id },
+        invoice: {
+          date: {
+            _gte: this.$format.date.databaseDate(range.from) || null,
+            _lte: this.$format.date.databaseDate(range.to) || null
+          }
+        }
       }"
     />
   </v-container>
@@ -95,16 +137,21 @@ import sumBy from 'lodash/sumBy'
 import get from 'lodash/get'
 import minBy from 'lodash/minBy'
 import maxBy from 'lodash/maxBy'
+import eachMonthOfInterval from 'date-fns/eachMonthOfInterval'
 import { median } from '@/lib/functions'
+import DateRangeInput from '@/components/inputs/DateRangeInput.vue'
 
 export default {
-  components: { GraphqlTable, AppChart },
+  components: { GraphqlTable, AppChart, DateRangeInput },
   apollo: {
     items: {
       query: gql`
-        query InvoiceItems($name: String) {
+        query InvoiceItems($name: String, $from: date, $to: date) {
           invoice_items(
-            where: { name: { _eq: $name } }
+            where: {
+              name: { _eq: $name }
+              invoice: { date: { _gte: $from, _lte: $to } }
+            }
             order_by: { invoice: { date: asc } }
           ) {
             quantity
@@ -125,16 +172,22 @@ export default {
       `,
       variables() {
         return {
-          name: this.$route.params.id
+          name: this.$route.params.id,
+          from: this.$format.date.databaseDate(this.range.from) || null,
+          to: this.$format.date.databaseDate(this.range.to) || null
         }
       },
-      update: data => data.invoice_items
+      update: data => data.invoice_items || []
     }
   },
 
   data() {
     return {
-      items: []
+      items: [],
+      range: {
+        from: null,
+        to: null
+      }
     }
   },
 
@@ -142,10 +195,12 @@ export default {
     shops() {
       return uniq(this.items.map(item => item.invoice.shop.name)).join(',')
     },
+
     medianCost() {
       if (!this.items.length) return 0
       return median(this.items.map(item => item.cost))
     },
+
     minCost() {
       return get(
         minBy(this.items, item => item.cost),
@@ -153,7 +208,6 @@ export default {
         0
       )
     },
-
     maxCost() {
       return get(
         maxBy(this.items, item => item.cost),
@@ -161,24 +215,57 @@ export default {
         0
       )
     },
+
+    lastCost() {
+      return get(this.lastInvoiceItem, 'cost')
+    },
+
+    firstInvoiceItem() {
+      return minBy(this.items, item =>
+        this.$parse.date.databaseDate(item.invoice.date)
+      )
+    },
+
+    lastInvoiceItem() {
+      return maxBy(this.items, item =>
+        this.$parse.date.databaseDate(item.invoice.date)
+      )
+    },
+
+    lastBought() {
+      return get(this.lastInvoiceItem, 'invoice.date')
+    },
+    firstBought() {
+      return get(this.firstInvoiceItem, 'invoice.date')
+    },
     timesBought() {
       return uniqBy(this.items, item => item.invoice.id).length
     },
-    lastBought() {
-      return get(
-        maxBy(this.items, item =>
-          this.$parse.date.databaseDate(item.invoice.date)
-        ),
-        'invoice.date'
-      )
+    avgTimesBoughtPerMonth() {
+      return this.timesBought / this.numOfMonths
     },
 
     totalQuantity() {
       return sumBy(this.items, item => item.quantity)
     },
+    avgQuantityPerMonth() {
+      return this.totalQuantity / this.numOfMonths
+    },
 
     totalCost() {
       return sumBy(this.items, item => item.cost * item.quantity)
+    },
+
+    avgCostPerMonth() {
+      return this.totalCost / this.numOfMonths
+    },
+
+    numOfMonths() {
+      if (!this.firstBought) return 1
+      return eachMonthOfInterval({
+        start: new Date(this.firstBought),
+        end: new Date()
+      }).length
     },
 
     chart() {

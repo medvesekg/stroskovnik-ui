@@ -178,6 +178,14 @@ export default {
         this.itemsQuery.searchFields = this.searchFields
         this.itemsCountQuery.searchFields = this.searchFields
       }
+    },
+    filter: {
+      deep: true,
+      handler: function(filter) {
+        console.log('gogo')
+        this.itemsQuery.filter = filter
+        this.itemsCountQuery.filter = filter
+      }
     }
   },
 
