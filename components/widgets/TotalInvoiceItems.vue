@@ -45,8 +45,8 @@ export default {
       query: NumOfInvoiceItems,
       variables() {
         return {
-          from: this.$format.date.databaseDate(this.from),
-          to: this.$format.date.databaseDate(this.to),
+          from: this.$format.date.databaseDate(this.from) || null,
+          to: this.$format.date.databaseDate(this.to) || null,
           categoryId: this.categoryId,
           shopId: this.shopId
         }
