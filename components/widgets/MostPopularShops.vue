@@ -7,7 +7,7 @@
         :input-value="type === 'totalItems'"
         :label="type === 'totalItems' ? 'Št. postavk' : 'Št.obiskov'"
         @change="type = $event ? 'totalItems' : 'mostVisited'"
-      ></v-switch>
+      />
     </v-app-bar>
     <v-simple-table>
       <thead>

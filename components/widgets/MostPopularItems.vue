@@ -7,7 +7,7 @@
         :input-value="type === 'timesBought' ? true : false"
         :label="type === 'timesBought' ? 'Pogostost' : 'Količina'"
         @change="type = $event ? 'timesBought' : 'totalQuantity'"
-      ></v-switch>
+      />
     </v-app-bar>
     <v-simple-table>
       <thead>
