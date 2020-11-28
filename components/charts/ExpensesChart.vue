@@ -168,14 +168,14 @@ export default {
     },
 
     minDate() {
-      if (this.invoiceItems && this.invoiceItems.count) {
+      if (this.invoiceItems && this.invoiceItems.length) {
         const minDateItem = minBy(this.invoiceItems, item => this.getDate(item))
         return this.getDate(minDateItem)
       }
       return null
     },
     maxDate() {
-      if (this.invoiceItems && this.invoiceItems.count) {
+      if (this.invoiceItems && this.invoiceItems.length) {
         const maxDateItem = maxBy(this.invoiceItems, item => this.getDate(item))
         return this.getDate(maxDateItem)
       }
