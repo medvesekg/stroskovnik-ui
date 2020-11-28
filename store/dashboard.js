@@ -1,5 +1,6 @@
 export const state = () => ({
   main: [
+    /*
     [
       {
         component: 'ExpensesChartWidget',
@@ -8,7 +9,7 @@ export const state = () => ({
     ],
 
     [
-      ({
+      {
         component: 'ExpensesPieChartWidget',
         props: {
           type: 'categories'
@@ -21,7 +22,7 @@ export const state = () => ({
           type: 'shops'
         },
         size: 6
-      })
+      }
     ],
 
     [
@@ -47,6 +48,6 @@ export const state = () => ({
         component: 'MostPopularShops',
         size: 12
       }
-    ]
+    ] */
   ]
 })
