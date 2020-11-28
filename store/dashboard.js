@@ -21,7 +21,8 @@ export const state = () => ({
         },
         size: 6
       }
-    ][
+    ],
+    [
       {
         component: 'MostExpensiveItems',
         size: 12
