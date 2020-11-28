@@ -25,7 +25,7 @@
           <td>{{ shop.timesVisited }}x</td>
           <td>{{ shop.itemsCount }}</td>
           <td>{{ shop.totalQuantity }}</td>
-          <td>{{ userCurrencyFormat(shop.sum) }}</td>
+          <td>{{ $format.number.currency(shop.sum) }}</td>
         </tr>
       </tbody>
     </v-simple-table>
@@ -35,7 +35,6 @@
 <script>
 import Invoices from '@/queries/Invoices'
 import Shops from '@/queries/Shops'
-import { userCurrencyFormat } from '@/format/currency'
 import orderBy from 'lodash/orderBy'
 import keyBy from 'lodash/keyBy'
 
@@ -112,9 +111,6 @@ export default {
     otherSorting() {
       return this.type === 'mostVisited' ? 'itemsCount' : 'timesVisited'
     }
-  },
-  methods: {
-    userCurrencyFormat
   }
 }
 </script>

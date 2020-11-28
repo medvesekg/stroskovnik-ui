@@ -24,12 +24,19 @@
         <tr v-for="item in mostExpensiveItems" :key="item.id">
           <td>{{ item.name }}</td>
           <td>{{ shopName(item.invoice.shop_id) }}</td>
-          <td>{{ userCurrencyFormat(item.cost) }}</td>
+          <td>{{ $format.number.currency(item.cost) }}</td>
           <td v-if="type === 'total'">{{ item.quantity }}</td>
           <td v-if="type === 'total'">
-            {{ userCurrencyFormat(item.total) }}
+            {{ $format.number.currency(item.total) }}
           </td>
-          <td>{{ userDateFormat(item.invoice.date) }}</td>
+          <td>
+            {{
+              $parseFormat(item.invoice.date, {
+                from: 'date.databaseDate',
+                to: 'date.date'
+              })
+            }}
+          </td>
         </tr>
       </tbody>
     </v-simple-table>
@@ -39,8 +46,6 @@
 <script>
 import InvoiceItems from '@/queries/InvoiceItems'
 import Shops from '@/queries/Shops'
-import { userDateFormat } from '@/format/date'
-import { userCurrencyFormat } from '@/format/currency'
 import orderBy from 'lodash/orderBy'
 import keyBy from 'lodash/keyBy'
 
@@ -92,9 +97,6 @@ export default {
     }
   },
   methods: {
-    userDateFormat,
-    userCurrencyFormat,
-
     shopName(id) {
       return this.shops[id] ? this.shops[id].name : ''
     }

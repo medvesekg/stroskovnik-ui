@@ -49,11 +49,9 @@ import CummulativeExpensesChart from '@/components/charts/CummulativeExpensesCha
 import TotalInvoices from '@/components/widgets/TotalInvoices'
 import TotalInvoiceItems from '@/components/widgets/TotalInvoiceItems'
 import TotalExpenses from '@/components/widgets/TotalExpenses'
-import { userCurrencyFormat } from '@/format/currency'
 
 import DailyExpenses from '@/queries/DailyExpenses.gql'
 
-import { userDateFormat } from '@/format/date'
 import merge from 'lodash/merge'
 
 export default {

@@ -1,5 +1,11 @@
 import definitions from './definitions'
 
+function parseWrapper(parseFn, parsers) {
+  return function(input) {
+    return [null, undefined].includes(input) ? null : parseFn(input, parsers)
+  }
+}
+
 const parsers = {}
 
 for (const typeName in definitions) {
@@ -7,7 +13,9 @@ for (const typeName in definitions) {
   parsers[typeName] = {}
   for (const optionName in type) {
     const option = type[optionName]
-    parsers[typeName][optionName] = option.parse
+    if (option.parse) {
+      parsers[typeName][optionName] = parseWrapper(option.parse, parsers)
+    }
   }
 }
 

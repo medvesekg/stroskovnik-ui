@@ -44,14 +44,14 @@
         <span
           class="ml-auto"
           :title="
-            $parseAndFormat(lastBought, {
+            $parseFormat(lastBought, {
               from: 'date.databaseDate',
               to: 'date.date'
             })
           "
         >
           {{
-            $parseAndFormat(lastBought, {
+            $parseFormat(lastBought, {
               from: 'date.databaseDate',
               to: 'date.relative'
             })

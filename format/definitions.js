@@ -1,5 +1,6 @@
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
+import parseISO from 'date-fns/parseISO'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 import { sl } from 'date-fns/locale'
 
@@ -26,7 +27,16 @@ export default {
     },
     databaseDate: {
       format: date => format(date, 'yyyy-MM-dd', { locale: sl }),
-      parse: string => parse(string, 'yyyy-MM-dd', defaultDate, { locale: sl })
+      parse: string => parse(string, 'yyyy-MM-dd', defaultDate, { locale: sl }),
+      parseFormat: (date, parse, format) =>
+        format.date.date(parse.date.databaseDate(date))
+    },
+    databaseDateTime: {
+      format: date =>
+        format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX", { locale: sl }),
+      parse: date => parseISO(date),
+      parseFormat: (date, parse, format) =>
+        format.date.dateTime(parse.date.databaseDateTime(date))
     },
     pickerDate: {
       format: date => format(date, 'yyyy-MM-dd', { locale: sl }),
@@ -66,9 +76,7 @@ export default {
       parse: ''
     },
     percent: {
-      format: number =>
-        (number * 100).toLocaleString('sl-SL', { maximumFractionDigits: 2 }) +
-        '%',
+      format: (number, format) => format.number.default(number * 100) + '%',
       parse: ''
     },
     currency: {

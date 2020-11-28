@@ -20,7 +20,10 @@
                 : ''
             }}
             račun z dne
-            {{ userDateFormat(deleteConfirmation.invoice.date) }} skupaj s
+            {{
+              $parseFormat.date.databaseDate(deleteConfirmation.invoice.date)
+            }}
+            skupaj s
             {{ deleteConfirmation.invoice.items.length || 0 }}
             postavkami?</v-card-text
           >
@@ -49,7 +52,7 @@
         v-model="editing[invoice.id].date"
         component="date-input"
       ></inline-edit>
-      <span v-else>{{ userDateFormat(invoice.date) }}</span>
+      <span v-else>{{ $parseFormat.date.databaseDate(invoice.date) }}</span>
     </template>
     <template #item.shop.name="{ item: invoice }">
       <inline-edit
@@ -65,11 +68,16 @@
       </span>
     </template>
     <template #item.totals.sum="{item: invoice}">
-      {{ invoice.totals ? userCurrencyFormat(invoice.totals.sum) : null }}
+      {{ $format.number.currency(get(invoice, 'totals.sum')) }}
     </template>
     <template #item.created_at="{item: invoice}">
-      <span :title="userDateTimeFormat(invoice.created_at)">
-        {{ relativeToNow(invoice.created_at) }}
+      <span :title="$parseFormat.date.databaseDateTime(invoice.created_at)">
+        {{
+          $parseFormat(invoice.created_at, {
+            from: 'date.databaseDateTime',
+            to: 'date.relative'
+          })
+        }}
       </span>
     </template>
     <template #item.file="{item: invoice}">
@@ -126,12 +134,10 @@
 
 <script>
 import gql from 'graphql-tag'
-import { userDateFormat } from '@/format/date'
-import { userCurrencyFormat } from '@/format/currency'
-import { relativeToNow, userDateTimeFormat } from '@/format/datetime'
 import Shops from '@/queries/Shops'
 import keyBy from 'lodash/keyBy'
 import set from 'lodash/set'
+import get from 'lodash/get'
 import InvoiceItemsTable from '@/components/InvoiceItemsTable'
 import InlineEdit from '@/components/InlineEdit'
 import firebase from 'firebase/app'
@@ -279,10 +285,7 @@ export default {
   },
 
   methods: {
-    userDateFormat,
-    userCurrencyFormat,
-    relativeToNow,
-    userDateTimeFormat,
+    get,
 
     startEdit(invoice) {
       this.$set(this.editing, invoice.id, { ...invoice })

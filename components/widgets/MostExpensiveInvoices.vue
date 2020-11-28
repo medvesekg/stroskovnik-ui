@@ -22,8 +22,8 @@
         <tr v-for="invoice in sortedInvoices" :key="invoice.id">
           <td>{{ getShopName(invoice.shop_id) }}</td>
           <td>{{ invoice.totals.count }}</td>
-          <td>{{ userCurrencyFormat(invoice.totals.sum) }}</td>
-          <td>{{ userDateFormat(invoice.date) }}</td>
+          <td>{{ $format.number.currency(invoice.totals.sum) }}</td>
+          <td>{{ $parseFormat.date.databaseDate(invoice.date) }}</td>
         </tr>
       </tbody>
     </v-simple-table>
@@ -33,8 +33,6 @@
 <script>
 import Invoices from '@/queries/Invoices'
 import Shops from '@/queries/Shops'
-import { userDateFormat } from '@/format/date'
-import { userCurrencyFormat } from '@/format/currency'
 import orderBy from 'lodash/orderBy'
 import keyBy from 'lodash/keyBy'
 
@@ -95,9 +93,7 @@ export default {
   methods: {
     getShopName(shopId) {
       return this.shops[shopId] ? this.shops[shopId].name : ''
-    },
-    userCurrencyFormat,
-    userDateFormat
+    }
   }
 }
 </script>

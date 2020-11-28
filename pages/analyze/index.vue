@@ -46,10 +46,7 @@
             <v-card-title>Povprečje</v-card-title>
             <v-card-text class="headline">
               <span class="error--text text--lighten-1">{{
-                userNumberFormat(average, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
+                $format.number.decimal2(average)
               }}</span>
               <span class="float-right">€</span>
             </v-card-text>
@@ -69,7 +66,6 @@ import DateRangeInput from '@/components/inputs/DateRangeInput'
 import ShopSelect from '@/components/inputs/ShopSelect'
 import CategorySelect from '@/components/inputs/CategorySelect'
 import get from 'lodash/get'
-import { userNumberFormat } from '@/format/number'
 
 export default {
   components: {
@@ -98,10 +94,6 @@ export default {
     to() {
       return get(this.range, 'to', null)
     }
-  },
-
-  methods: {
-    userNumberFormat
   }
 }
 </script>

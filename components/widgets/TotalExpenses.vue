@@ -16,12 +16,11 @@
 
 <script>
 import TotalExpenses from '@/queries/TotalExpenses.gql'
-import { userNumberFormat } from '@/format/number'
 
 export default {
   props: {
     from: {
-      type: [Date, String],
+      type: Date,
       required: false,
       default: null
     },
@@ -47,18 +46,14 @@ export default {
       query: TotalExpenses,
       variables() {
         return {
-          from: this.from,
-          to: this.to,
+          from: this.$format.date.databaseDate(this.from),
+          to: this.$format.date.databaseDate(this.to),
           categoryId: this.categoryId,
           shopId: this.shopId
         }
       },
       update: data => data.invoice_items_aggregate.aggregate.sum.total
     }
-  },
-
-  methods: {
-    userNumberFormat
   }
 }
 </script>

@@ -42,7 +42,7 @@
     </template>
     <template #item.cost="{ item }">
       <inline-edit v-if="editing[item.id]" v-model="editing[item.id].cost" />
-      <span v-else>{{ userCurrencyFormat(item.cost) }}</span>
+      <span v-else>{{ $format.number.currency(item.cost) }}</span>
     </template>
     <template #item.quantity="{ item }">
       <inline-edit
@@ -53,7 +53,7 @@
     </template>
     <template #item.total="{ item }">
       <span>
-        {{ userCurrencyFormat(item.total) }}
+        {{ $format.number.currency(item.total) }}
       </span>
     </template>
     <template #item.actions="{ item }">
@@ -80,7 +80,6 @@
 
 <script>
 import gql from 'graphql-tag'
-import { userCurrencyFormat } from '@/format/currency'
 import InlineEdit from '@/components/InlineEdit'
 import Categories from '@/queries/Categories'
 import keyBy from 'lodash/keyBy'
@@ -219,8 +218,6 @@ export default {
   },
 
   methods: {
-    userCurrencyFormat,
-
     startEdit(item) {
       this.$set(this.editing, item.id, { ...item })
     },
