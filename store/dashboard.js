@@ -1,6 +1,5 @@
 export const state = () => ({
   main: [
-    /*
     [
       {
         component: 'ExpensesChartWidget',
@@ -48,6 +47,6 @@ export const state = () => ({
         component: 'MostPopularShops',
         size: 12
       }
-    ] */
+    ]
   ]
 })
