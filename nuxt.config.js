@@ -1,4 +1,4 @@
-require('dotenv').config()
+import stroskovnik from './stroskovnik.config'
 import pkg from './package'
 import colors from 'vuetify/es5/util/colors'
 
@@ -73,8 +73,8 @@ export default {
     // See https://github.com/nuxt-community/apollo-module
     clientConfigs: {
       default: {
-        httpEndpoint: process.env.NUXT_ENV_GRAPHQL_ENDPOINT,
-        wsEndpoint: process.env.NUXT_ENV_GRAPHQL_WSS_ENDPOINT
+        httpEndpoint: stroskovnik.graphqlEndpoint,
+        wsEndpoint: stroskovnik.wssEndpoint
       }
     },
     cookieAttributes: {

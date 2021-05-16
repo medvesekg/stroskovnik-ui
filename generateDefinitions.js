@@ -1,4 +1,5 @@
 require('dotenv').config()
+const stroskovnik = require('./stroskovnik.config.js')
 const fs = require('fs')
 const axios = require('axios')
 
@@ -6,7 +7,7 @@ axios.defaults.headers.post['x-hasura-admin-secret'] = process.env.HASURA_GRAPHQ
 
 function getTableColumns() {
   return axios
-    .post(process.env.HASURA_QUERY_ENDPOINT, {
+    .post(stroskovnik.queryEndpoint, {
       type: 'run_sql',
       args: {
         sql:
@@ -40,7 +41,7 @@ function getTableColumns() {
 
 function getMetadata() {
   return axios
-    .post(process.env.HASURA_QUERY_ENDPOINT, {
+    .post(stroskovnik.queryEndpoint, {
       type: 'export_metadata',
       args: {}
     })
@@ -91,7 +92,7 @@ function getMetadata() {
 
 function getForeignKeys() {
   return axios
-    .post(process.env.HASURA_QUERY_ENDPOINT, {
+    .post(stroskovnik.queryEndpoint, {
       type: 'run_sql',
       args: {
         sql: `
