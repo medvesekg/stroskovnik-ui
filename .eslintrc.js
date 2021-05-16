@@ -23,6 +23,7 @@ module.exports = {
     "no-unreachable": "off",
     "vue/no-unused-components": "off",
     "no-unused-vars": "off",
-    "vue/no-unused-vars": "off"
+    "vue/no-unused-vars": "off",
+    "import/no-named-as-default": "off"
   }
 }

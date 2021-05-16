@@ -8,6 +8,14 @@ export default {
    */
   ssr: true,
 
+  render: {
+    bundleRenderer: {
+      runInNewContext: false,
+      // Without this validation for props with type Date throws errors in dev
+      // https://github.com/nuxt/nuxt.js/issues/5565
+    },
+  },
+
   head: {
     title: pkg.name,
     meta: [
