@@ -243,8 +243,10 @@ export default {
   methods: {
     changeFocus(from, to) {
       this.$nextTick(() => {
-        this.blurRef(from)
-        this.focusRef(to)
+        this.$nextTick(() => {
+          this.blurRef(from)
+          this.focusRef(to)
+        })
       })
     },
     focusRef(ref) {
