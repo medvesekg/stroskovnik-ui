@@ -1,9 +1,10 @@
 require('dotenv').config()
-const stroskovnik = require('./stroskovnik.config.js')
 const fs = require('fs')
 const axios = require('axios')
+const stroskovnik = require('./stroskovnik.config.js')
 
-axios.defaults.headers.post['x-hasura-admin-secret'] = process.env.HASURA_GRAPHQL_ADMIN_SECRET
+axios.defaults.headers.post['x-hasura-admin-secret'] =
+  process.env.HASURA_GRAPHQL_ADMIN_SECRET
 
 function getTableColumns() {
   return axios
@@ -47,7 +48,7 @@ function getMetadata() {
     })
     .then(meta => {
       return getForeignKeys().then(foreignKeys => {
-        const tables = meta.data.tables
+        const tables = meta.data.tables || meta.data.sources[0].tables
         const metadata = {}
         for (const table of tables) {
           let relations = metadata[table.table.name]
