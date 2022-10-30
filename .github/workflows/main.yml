@@ -16,5 +16,6 @@ jobs:
         KEY: ${{ secrets.SSH_KEY }}
         script: |
           cd sites/stroskovnik-ui
+          ls
           yarn build
           pm2 reload 1
