@@ -18,6 +18,6 @@ jobs:
           export NVM_DIR=~/.nvm
           source ~/.nvm/nvm.sh
           cd sites/stroskovnik-ui
-          ls
+          git pull
           yarn build
           pm2 reload 0
