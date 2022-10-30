@@ -20,4 +20,4 @@ jobs:
           cd sites/stroskovnik-ui
           ls
           yarn build
-          pm2 reload 1
+          pm2 reload 0
